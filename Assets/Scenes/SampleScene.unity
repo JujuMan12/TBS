@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 819794376}
   m_Layer: 0
   m_Name: Map
-  m_TagString: Untagged
+  m_TagString: Map
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -502,6 +502,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: FootmanPolyart
       objectReference: {fileID: 0}
+    - target: {fileID: 928723031, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}
+      propertyPath: m_TagString
+      value: PlayerUnit
+      objectReference: {fileID: 0}
     - target: {fileID: 928723033, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -641,3 +645,21 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2222111361405018444, guid: 88f2fd29f58b9734683512546acec310, type: 3}
   m_PrefabInstance: {fileID: 1738200344}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1766783507 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 928723031, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}
+  m_PrefabInstance: {fileID: 1340914969}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1766783509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766783507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc1280b9c233b6d40a63535ffea48f0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementSpeed: 10
