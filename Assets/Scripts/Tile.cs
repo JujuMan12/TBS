@@ -9,11 +9,20 @@ public class Tile
         this.tileMap = tileMap;
         this.posX = posX;
         this.posZ = posZ;
+
+        neighbours = new List<Tile>();
     }
 
-    public TileMap tileMap;
-    public int posX;
-    public int posZ;
+    readonly public TileMap tileMap;
+    readonly public int posX;
+    readonly public int posZ;
+
     public float height = 0;
     public bool passable = true;
+    public List<Tile> neighbours;
+
+    public float DistanceTo(Tile tile)
+    {
+        return Vector2.Distance(new Vector2(posX, posZ), new Vector2(tile.posX, tile.posZ));
+    }
 }

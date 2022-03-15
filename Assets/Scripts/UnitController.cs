@@ -5,9 +5,9 @@ using UnityEngine;
 public class UnitController : MonoBehaviour
 {
     [HideInInspector] private Vector3 targetWorldPosition;
-    [HideInInspector] public int tilePositionX;
-    [HideInInspector] public int tilePositionZ;
-    [HideInInspector] public List<Node> currentPath;
+    [HideInInspector] public int tileX;
+    [HideInInspector] public int tileZ;
+    [HideInInspector] public List<Tile> currentPath;
     [HideInInspector] public enum AnimationState { idle, moving };
     [HideInInspector] private Animator animator;
 
@@ -17,8 +17,8 @@ public class UnitController : MonoBehaviour
     private void Start()
     {
         targetWorldPosition = transform.position;
-        tilePositionX = (int)transform.position.x;
-        tilePositionZ = (int)transform.position.z;
+        tileX = (int)transform.position.x;
+        tileZ = (int)transform.position.z;
         animator = gameObject.GetComponent<Animator>();
     }
 

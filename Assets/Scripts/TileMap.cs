@@ -6,7 +6,6 @@ public class TileMap : MonoBehaviour
 {
     [HideInInspector] private UnitController selectedUnit;
     [HideInInspector] private Tile[,] tiles;
-    [HideInInspector] private Node[,] nodes;
 
     [Header("Map")]
     [SerializeField] private GameObject tilePrefab;
@@ -20,7 +19,6 @@ public class TileMap : MonoBehaviour
     private void Start()
     {
         GenerateTilesData();
-        GeneratePathfindingGraph();
         GenerateTilesVisual();
 
         selectedUnit = GameObject.FindGameObjectWithTag("PlayerUnit").GetComponent<UnitController>();
@@ -38,47 +36,32 @@ public class TileMap : MonoBehaviour
             }
         }
 
-        foreach (Vector2 pos in impassableTiles)
-        {
-            tiles[(int)pos.x, (int)pos.y].passable = false;
-        }
-    }
-
-    private void GeneratePathfindingGraph()
-    {
-        nodes = new Node[mapSizeX, mapSizeZ];
-
-        for (int x = 0; x < mapSizeX; x++)
-        {
-            for (int z = 0; z < mapSizeZ; z++)
-            {
-                nodes[x, z] = new Node();
-                nodes[x, z].posX = x;
-                nodes[x, z].posZ = z;
-            }
-        }
-
         for (int x = 0; x < mapSizeX; x++)
         {
             for (int z = 0; z < mapSizeZ; z++)
             {
                 if (x > 0)
                 {
-                    nodes[x, z].neighbours.Add(nodes[x - 1, z]);
+                    tiles[x, z].neighbours.Add(tiles[x - 1, z]);
                 }
                 if (x < mapSizeX - 1)
                 {
-                    nodes[x, z].neighbours.Add(nodes[x + 1, z]);
+                    tiles[x, z].neighbours.Add(tiles[x + 1, z]);
                 }
                 if (z > 0)
                 {
-                    nodes[x, z].neighbours.Add(nodes[x, z - 1]);
+                    tiles[x, z].neighbours.Add(tiles[x, z - 1]);
                 }
                 if (z < mapSizeZ - 1)
                 {
-                    nodes[x, z].neighbours.Add(nodes[x, z + 1]);
+                    tiles[x, z].neighbours.Add(tiles[x, z + 1]);
                 }
             }
+        }
+
+        foreach (Vector2 pos in impassableTiles)
+        {
+            tiles[(int)pos.x, (int)pos.y].passable = false;
         }
     }
 
@@ -106,71 +89,71 @@ public class TileMap : MonoBehaviour
     {
         selectedUnit.currentPath = null;
 
-        Dictionary<Node, float> distanceTo = new Dictionary<Node, float>();
-        Dictionary<Node, Node> prev = new Dictionary<Node, Node>();
+        Dictionary<Tile, float> distanceTo = new Dictionary<Tile, float>();
+        Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>();
 
-        List<Node> uncheckedNodes = new List<Node>();
+        List<Tile> uncheckedTiles = new List<Tile>();
 
-        Node sourceNode = nodes[selectedUnit.tilePositionX, selectedUnit.tilePositionZ];
-        Node targetNode = nodes[posX, posZ];
+        Tile sourceTile = tiles[selectedUnit.tileX, selectedUnit.tileZ];
+        Tile targetTile = tiles[posX, posZ];
 
-        distanceTo[sourceNode] = 0;
-        prev[sourceNode] = null;
+        distanceTo[sourceTile] = 0;
+        prev[sourceTile] = null;
 
-        foreach (Node node in nodes)
+        foreach (Tile tile in tiles)
         {
-            if (node != sourceNode)
+            if (tile != sourceTile)
             {
-                distanceTo[node] = Mathf.Infinity;
-                prev[node] = null;
+                distanceTo[tile] = Mathf.Infinity;
+                prev[tile] = null;
             }
 
-            uncheckedNodes.Add(node);
+            uncheckedTiles.Add(tile);
         }
 
-        while (uncheckedNodes.Count > 0)
+        while (uncheckedTiles.Count > 0)
         {
-            Node node = uncheckedNodes[0];
+            Tile tile = uncheckedTiles[0];
 
-            foreach (Node possibleNode in uncheckedNodes)
+            foreach (Tile possibleTile in uncheckedTiles)
             {
-                if (distanceTo[possibleNode] < distanceTo[node])
+                if (distanceTo[possibleTile] < distanceTo[tile])
                 {
-                    node = possibleNode;
+                    tile = possibleTile;
                 }
             }
 
-            if (node == targetNode)
+            if (tile == targetTile)
             {
                 break;
             }
 
-            uncheckedNodes.Remove(node);
+            uncheckedTiles.Remove(tile);
 
-            foreach (Node neighbour in node.neighbours)
+            foreach (Tile neighbour in tile.neighbours)
             {
-                float alt = distanceTo[node] + node.DistanceToNeighbour(neighbour);
+                float alt = distanceTo[tile] + tile.DistanceTo(neighbour);
 
                 if (alt < distanceTo[neighbour])
                 {
                     distanceTo[neighbour] = alt;
-                    prev[neighbour] = node;
+                    prev[neighbour] = tile;
                 }
             }
         }
 
-        if (prev[targetNode] == null)
+        if (prev[targetTile] == null)
         {
             return;
         }
 
-        List<Node> currentPath = new List<Node>();
-        Node currentNode = targetNode;
+        List<Tile> currentPath = new List<Tile>();
+        Tile currentTile = targetTile;
 
-        while (currentNode != null)
+        while (currentTile != null)
         {
-            currentPath.Add(currentNode);
-            currentNode = prev[currentNode];
+            currentPath.Add(currentTile);
+            currentTile = prev[currentTile];
         }
 
         currentPath.Reverse();
