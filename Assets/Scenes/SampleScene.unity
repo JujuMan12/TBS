@@ -327,9 +327,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilePrefab: {fileID: 1172534567677172424, guid: 17fc76babbd78ef41aab02c02cc4cd84, type: 3}
-  nullTilePrefab: {fileID: 1172534567677172424, guid: 6d62301435c99584781a802f0f444d82, type: 3}
   mapSizeX: 10
-  mapSizeY: 10
+  mapSizeZ: 10
+  impassableColor: {r: 1, g: 0, b: 0, a: 0.39215687}
+  impassableTiles:
+  - {x: 1, y: 2}
 --- !u!1 &929284952
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,4 +664,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc1280b9c233b6d40a63535ffea48f0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tilePositionX: 0
+  tilePositionZ: 0
   movementSpeed: 10

@@ -24,6 +24,21 @@ public class UnitController : MonoBehaviour
 
     private void Update()
     {
+        //print(currentPath);
+        if (currentPath != null)
+        {
+            int currentNodeId = 0;
+
+            while (currentNodeId < currentPath.Count - 1)
+            {
+                Vector3 startPos = new Vector3(currentPath[currentNodeId].posX, 0f, currentPath[currentNodeId].posZ);
+                Vector3 endPos = new Vector3(currentPath[currentNodeId + 1].posX, 0f, currentPath[currentNodeId + 1].posZ);
+
+                Debug.DrawLine(startPos, endPos, Color.red);
+                currentNodeId++;
+            }
+        }
+
         if (Mathf.Abs(transform.position.x - targetWorldPosition.x) > 0.01f && Mathf.Abs(transform.position.z - targetWorldPosition.z) > 0.01f)
         {
             animator.SetInteger("state", (int)AnimationState.moving);

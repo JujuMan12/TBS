@@ -4,17 +4,10 @@ using UnityEngine;
 
 public class TileComponent : MonoBehaviour
 {
-    [HideInInspector] private TileMap tileMap;
-    [HideInInspector] public int posX;
-    [HideInInspector] public int posZ;
-
-    private void Start()
-    {
-        tileMap = GameObject.FindGameObjectWithTag("Map").GetComponent<TileMap>();
-    }
+    [HideInInspector] public Tile tileData;
 
     public void OnMouseUp()
     {
-        tileMap.GeneratePathTo(posX, posZ);
+        tileData.tileMap.GeneratePathTo(tileData.posX, tileData.posZ);
     }
 }

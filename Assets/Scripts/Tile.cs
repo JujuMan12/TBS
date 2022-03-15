@@ -4,12 +4,16 @@ using UnityEngine;
 
 public class Tile
 {
-    public Tile(TileMap tileMap)
+    public Tile(TileMap tileMap, int posX, int posZ)
     {
         this.tileMap = tileMap;
+        this.posX = posX;
+        this.posZ = posZ;
     }
 
-    private TileMap tileMap;
+    public TileMap tileMap;
+    public int posX;
+    public int posZ;
     public float height = 0;
     public bool passable = true;
 }
