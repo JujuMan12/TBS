@@ -9,17 +9,20 @@ public class UnitController : MonoBehaviour
     [HideInInspector] public int currentPathId;
     [HideInInspector] public Tile currentTile;
     [HideInInspector] private Vector3 targetPosition;
+    [HideInInspector] private Quaternion targetRotation;
     [HideInInspector] public enum AnimationState { idle, moving };
     [HideInInspector] private Animator animator;
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
     [SerializeField] private float tileStopSpeed = 0.05f;
+    [SerializeField] private float rotationSpeed = 50f;
 
     private void Start()
     {
         currentTile = unitData.tile;
         targetPosition = transform.position;
+        targetRotation = transform.rotation;
         animator = gameObject.GetComponent<Animator>();
     }
 
@@ -28,7 +31,12 @@ public class UnitController : MonoBehaviour
         if (currentPath != null)
         {
             HandleMovement();
-            currentPath[0].tileComponent.ResetColor(); //TODO
+            currentPath[0]?.tileComponent.ResetColor(); //TODO
+        }
+
+        if (transform.rotation != targetRotation)
+        {
+            UpdateRotation();
         }
     }
 
@@ -42,6 +50,7 @@ public class UnitController : MonoBehaviour
                 currentPathId++;
                 currentTile = currentPath[currentPathId];
                 targetPosition = new Vector3(currentTile.posX, currentTile.height, currentTile.posZ);
+                SetNewRotation();
             }
             else
             {
@@ -55,5 +64,30 @@ public class UnitController : MonoBehaviour
             animator.SetInteger("state", (int)AnimationState.moving);
             transform.position = Vector3.Lerp(transform.position, targetPosition, movementSpeed * Time.deltaTime);
         }
+    }
+
+    private void UpdateRotation()
+    {
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+
+    private void SetNewRotation()
+    {
+        float angleY = 0f;
+
+        if (targetPosition.x - transform.position.x > 0.1f)
+        {
+            angleY = 90f;
+        }
+        else if (targetPosition.x - transform.position.x < -0.1f)
+        {
+            angleY = -90f;
+        }
+        else if (targetPosition.z - transform.position.z < -0.1f)
+        {
+            angleY = 180f;
+        }
+
+        targetRotation = Quaternion.Euler(0f, angleY, 0f);
     }
 }
