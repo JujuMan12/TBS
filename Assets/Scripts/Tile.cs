@@ -19,6 +19,7 @@ public class Tile
 
     public float height = 0;
     public bool passable = true;
+    public TileComponent tileComponent;
     public List<Tile> neighbours;
 
     public float DistanceTo(Tile tile)

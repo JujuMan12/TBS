@@ -4,54 +4,56 @@ using UnityEngine;
 
 public class UnitController : MonoBehaviour
 {
-    [HideInInspector] private Vector3 targetWorldPosition;
-    [HideInInspector] public int tileX;
-    [HideInInspector] public int tileZ;
+    [HideInInspector] public Unit unitData;
     [HideInInspector] public List<Tile> currentPath;
+    [HideInInspector] public int currentPathId;
+    [HideInInspector] public Tile currentTile;
+    [HideInInspector] private Vector3 targetPosition;
     [HideInInspector] public enum AnimationState { idle, moving };
     [HideInInspector] private Animator animator;
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
+    [SerializeField] private float tileStopSpeed = 0.05f;
 
     private void Start()
     {
-        targetWorldPosition = transform.position;
-        tileX = (int)transform.position.x;
-        tileZ = (int)transform.position.z;
+        currentTile = unitData.tile;
+        targetPosition = transform.position;
         animator = gameObject.GetComponent<Animator>();
     }
 
     private void Update()
     {
-        //print(currentPath);
         if (currentPath != null)
         {
-            int currentNodeId = 0;
-
-            while (currentNodeId < currentPath.Count - 1)
-            {
-                Vector3 startPos = new Vector3(currentPath[currentNodeId].posX, 0f, currentPath[currentNodeId].posZ);
-                Vector3 endPos = new Vector3(currentPath[currentNodeId + 1].posX, 0f, currentPath[currentNodeId + 1].posZ);
-
-                Debug.DrawLine(startPos, endPos, Color.red);
-                currentNodeId++;
-            }
-        }
-
-        if (Mathf.Abs(transform.position.x - targetWorldPosition.x) > 0.01f && Mathf.Abs(transform.position.z - targetWorldPosition.z) > 0.01f)
-        {
-            animator.SetInteger("state", (int)AnimationState.moving);
-            transform.position = Vector3.Lerp(transform.position, targetWorldPosition, movementSpeed * Time.deltaTime);
-        }
-        else
-        {
-            animator.SetInteger("state", (int)AnimationState.idle);
+            HandleMovement();
+            currentPath[0].tileComponent.ResetColor(); //TODO
         }
     }
 
-    //public void SetNewPosition(Vector3 newPosition)
-    //{
-    //    targetWorldPosition = newPosition;
-    //}
+    private void HandleMovement()
+    {
+        if (Mathf.Abs(transform.position.x - targetPosition.x) < tileStopSpeed && Mathf.Abs(transform.position.z - targetPosition.z) < tileStopSpeed)
+        {
+            if (currentPathId != currentPath.Count - 1)
+            {
+                currentTile.tileComponent.ResetColor();
+                currentPathId++;
+                currentTile = currentPath[currentPathId];
+                targetPosition = new Vector3(currentTile.posX, currentTile.height, currentTile.posZ);
+            }
+            else
+            {
+                currentPath = null;
+                currentPathId = 0;
+                animator.SetInteger("state", (int)AnimationState.idle);
+            }
+        }
+        else
+        {
+            animator.SetInteger("state", (int)AnimationState.moving);
+            transform.position = Vector3.Lerp(transform.position, targetPosition, movementSpeed * Time.deltaTime);
+        }
+    }
 }
