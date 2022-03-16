@@ -6,19 +6,51 @@ public class TileComponent : MonoBehaviour
 {
     [HideInInspector] public Tile tileData;
     [HideInInspector] private SpriteRenderer sprite;
-    [HideInInspector] private Color defaultColor;
+    [HideInInspector] private Color currentColor;
+    [HideInInspector] private Color targetColor;
+    [HideInInspector] public enum ColorState { none, impassable, available, path, enemy, ally };
+    [HideInInspector] public ColorState colorState;
+
+    [Header("Colors")]
+    [SerializeField] public Color defaultColor = new Color(1f, 1f, 1f, 0.25f);
+    [SerializeField] public Color impassableColor = new Color(1f, 0f, 0f, 0.25f);
+    [SerializeField] public Color availableColor = new Color(0f, 1f, 0f, 0.25f);
+    [SerializeField] public Color pathColor = new Color(1f, 1f, 0f, 0.25f);
 
     private void Start()
     {
         sprite = gameObject.GetComponent<SpriteRenderer>();
-        defaultColor = sprite.color;
+        currentColor = sprite.color;
+        targetColor = currentColor;
     }
 
     private void FixedUpdate()
     {
-        if (sprite.color != defaultColor && ShouldHaveDefaultColor())
+        SetTargetColor();
+
+        if (currentColor != targetColor)
         {
-            ResetColor();
+            SetColor(targetColor);
+        }
+    }
+
+    private void SetTargetColor()
+    {
+        if (colorState == ColorState.none)
+        {
+            targetColor = defaultColor;
+        }
+        else if (colorState == ColorState.impassable)
+        {
+            targetColor = impassableColor;
+        }
+        else if (colorState == ColorState.available)
+        {
+            targetColor = availableColor;
+        }
+        else if (colorState == ColorState.path)
+        {
+            targetColor = pathColor;
         }
     }
 
@@ -34,38 +66,19 @@ public class TileComponent : MonoBehaviour
         }
     }
 
-    private void OnMouseEnter()
+    private void OnMouseOver()
     {
         sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.75f);
-        defaultColor = new Color(defaultColor.r, defaultColor.g, defaultColor.b, 0.75f);
     }
 
     private void OnMouseExit()
     {
         sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.25f);
-        defaultColor = new Color(defaultColor.r, defaultColor.g, defaultColor.b, 0.25f);
     }
 
-    public void SetColor(Color newColor)
+    private void SetColor(Color newColor)
     {
         sprite.color = newColor;
-    }
-
-    public void ResetColor()
-    {
-        sprite.color = defaultColor;
-    }
-
-    private bool ShouldHaveDefaultColor()
-    {
-        List<Tile> currentPath = tileData.tileMap.selectedUnit.currentPath;
-        if (currentPath != null)
-        {
-            return !currentPath.Contains(tileData);
-        }
-        else
-        {
-            return true;
-        }
+        currentColor = newColor;
     }
 }

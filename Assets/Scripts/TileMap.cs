@@ -5,8 +5,8 @@ using UnityEngine;
 public class TileMap : MonoBehaviour
 {
     [HideInInspector] public UnitController selectedUnit;
+    [HideInInspector] private List<Tile> availableTiles;
     [HideInInspector] private Transform unitFolder;
-    [HideInInspector] private bool pathIsHighlighted;
     [HideInInspector] private Tile[,] tiles;
     [HideInInspector] private List<Unit> units;
 
@@ -16,11 +16,6 @@ public class TileMap : MonoBehaviour
 
     [Header("Tiles")]
     [SerializeField] private GameObject tilePrefab;
-    [SerializeField] public Color defaultColor = new Color(1f, 1f, 1f, 0.25f);
-    [SerializeField] public Color pathColor = new Color(0f, 1f, 0f, 0.25f);
-
-    [Header("Impassable")]
-    [SerializeField] public Color impassableColor = new Color(1f, 0f, 0f, 0.25f);
     [SerializeField] private Vector2[] impassableTiles;
 
     [Header("Units")]
@@ -35,14 +30,9 @@ public class TileMap : MonoBehaviour
         GenerateUnitsData();
 
         selectedUnit = GameObject.FindGameObjectWithTag("PlayerUnit").GetComponent<UnitController>();
-    }
 
-    private void FixedUpdate()
-    {
-        if (selectedUnit.currentPath != null && !pathIsHighlighted)
-        {
-            HighlightCurrentPath();
-        }
+        availableTiles = new List<Tile>();
+        HighlightAvailableTiles(selectedUnit.unitData.tile, selectedUnit.maxActionPoints);
     }
 
     private void GenerateTilesData()
@@ -93,16 +83,14 @@ public class TileMap : MonoBehaviour
             for (int z = 0; z < mapSizeZ; z++)
             {
                 GameObject tile = Instantiate(tilePrefab, new Vector3(x, tiles[x, z].height, z), Quaternion.Euler(90f, 0f, 0f), gameObject.transform);
-                tile.GetComponent<TileComponent>().tileData = tiles[x, z];
-                tiles[x, z].tileComponent = tile.GetComponent<TileComponent>();
+                TileComponent tileComponent = tile.GetComponent<TileComponent>();
 
-                if (tiles[x, z].passable)
+                tileComponent.tileData = tiles[x, z];
+                tiles[x, z].tileComponent = tileComponent;
+
+                if (!tiles[x, z].passable)
                 {
-                    tile.GetComponent<SpriteRenderer>().color = defaultColor;
-                }
-                else
-                {
-                    tile.GetComponent<SpriteRenderer>().color = impassableColor;
+                    tileComponent.colorState = TileComponent.ColorState.impassable;
                 }
             }
         }
@@ -120,9 +108,15 @@ public class TileMap : MonoBehaviour
 
     public void GeneratePathTo(int posX, int posZ)
     {
-        selectedUnit.currentPath = null;
-        selectedUnit.currentPathId = 0;
-        pathIsHighlighted = false;
+        if (selectedUnit.currentPath != null)
+        {
+            ClearCurrentPath();
+        }
+
+        if (availableTiles != null)
+        {
+            ClearAvailableTiles();
+        }
 
         Dictionary<Tile, float> distanceTo = new Dictionary<Tile, float>();
         Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>();
@@ -194,17 +188,52 @@ public class TileMap : MonoBehaviour
         currentPath.Reverse();
 
         selectedUnit.currentPath = currentPath;
+        HighlightCurrentPath();
+    }
 
-        //selectedUnit.SetNewPosition(new Vector3(posX, 0, posZ));
+    private void ClearAvailableTiles()
+    {
+        foreach (Tile tile in availableTiles)
+        {
+            tile.tileComponent.colorState = TileComponent.ColorState.none;
+        }
+
+        availableTiles.Clear();
+    }
+
+    private void ClearCurrentPath()
+    {
+        foreach (Tile tile in selectedUnit.currentPath)
+        {
+            tile.tileComponent.colorState = TileComponent.ColorState.none;
+        }
+
+        selectedUnit.currentPath = null;
+        selectedUnit.currentPathId = 0;
+    }
+
+    public void HighlightAvailableTiles(Tile currentTile, int actionPoints)
+    {
+        availableTiles.Add(currentTile);
+
+        if (actionPoints > 0)
+        {
+            foreach (Tile neighbour in currentTile.neighbours)
+            {
+                if (!availableTiles.Contains(neighbour))
+                {
+                    neighbour.tileComponent.colorState = TileComponent.ColorState.available;
+                    HighlightAvailableTiles(neighbour, actionPoints - 1);
+                }
+            }
+        }
     }
 
     private void HighlightCurrentPath()
     {
-        pathIsHighlighted = true;
-
         foreach (Tile tile in selectedUnit.currentPath)
         {
-            tile.tileComponent.SetColor(pathColor);
+            tile.tileComponent.colorState = TileComponent.ColorState.path;
         }
     }
 }

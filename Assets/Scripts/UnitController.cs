@@ -10,8 +10,12 @@ public class UnitController : MonoBehaviour
     [HideInInspector] public Tile currentTile;
     [HideInInspector] private Vector3 targetPosition;
     [HideInInspector] private Quaternion targetRotation;
+    [HideInInspector] public int remainingActionPoints;
     [HideInInspector] public enum AnimationState { idle, moving };
     [HideInInspector] private Animator animator;
+
+    [Header("Characteristics")]
+    [SerializeField] public int maxActionPoints = 4;
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
@@ -20,9 +24,15 @@ public class UnitController : MonoBehaviour
 
     private void Start()
     {
+        InitVars();
+    }
+
+    private void InitVars()
+    {
         currentTile = unitData.tile;
         targetPosition = transform.position;
         targetRotation = transform.rotation;
+        remainingActionPoints = maxActionPoints;
         animator = gameObject.GetComponent<Animator>();
     }
 
@@ -31,7 +41,6 @@ public class UnitController : MonoBehaviour
         if (currentPath != null)
         {
             HandleMovement();
-            currentPath[0]?.tileComponent.ResetColor(); //TODO
         }
 
         if (transform.rotation != targetRotation)
@@ -44,9 +53,10 @@ public class UnitController : MonoBehaviour
     {
         if (Mathf.Abs(transform.position.x - targetPosition.x) < tileStopSpeed && Mathf.Abs(transform.position.z - targetPosition.z) < tileStopSpeed)
         {
+            currentTile.tileComponent.colorState = TileComponent.ColorState.none;
+
             if (currentPathId != currentPath.Count - 1)
             {
-                currentTile.tileComponent.ResetColor();
                 currentPathId++;
                 currentTile = currentPath[currentPathId];
                 targetPosition = new Vector3(currentTile.posX, currentTile.height, currentTile.posZ);
@@ -57,6 +67,7 @@ public class UnitController : MonoBehaviour
                 currentPath = null;
                 currentPathId = 0;
                 animator.SetInteger("state", (int)AnimationState.idle);
+                currentTile.tileMap.HighlightAvailableTiles(currentTile, remainingActionPoints);
             }
         }
         else
