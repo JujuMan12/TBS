@@ -7,10 +7,10 @@ public class UnitController : MonoBehaviour
     [HideInInspector] public Unit unitData;
     [HideInInspector] public List<Tile> currentPath;
     [HideInInspector] public int currentPathId;
-    [HideInInspector] public Tile currentTile;
+    [HideInInspector] private TileMap tileMap;
     [HideInInspector] private Vector3 targetPosition;
     [HideInInspector] private Quaternion targetRotation;
-    [HideInInspector] public int remainingActionPoints;
+    [HideInInspector] public int actionPoints;
     [HideInInspector] public enum AnimationState { idle, moving };
     [HideInInspector] private Animator animator;
 
@@ -29,11 +29,17 @@ public class UnitController : MonoBehaviour
 
     private void InitVars()
     {
-        currentTile = unitData.tile;
+        tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
         targetPosition = transform.position;
         targetRotation = transform.rotation;
-        remainingActionPoints = maxActionPoints;
+        actionPoints = maxActionPoints;
         animator = gameObject.GetComponent<Animator>();
+    }
+
+    public void SetUnitData(Unit unit)
+    {
+        unitData = unit;
+        unit.unitController = this;
     }
 
     private void Update()
@@ -53,13 +59,13 @@ public class UnitController : MonoBehaviour
     {
         if (Mathf.Abs(transform.position.x - targetPosition.x) < tileStopSpeed && Mathf.Abs(transform.position.z - targetPosition.z) < tileStopSpeed)
         {
-            currentTile.tileComponent.colorState = TileComponent.ColorState.none;
+            unitData.tile.tileComponent.colorState = TileComponent.ColorState.none;
 
             if (currentPathId != currentPath.Count - 1)
             {
                 currentPathId++;
-                currentTile = currentPath[currentPathId];
-                targetPosition = new Vector3(currentTile.posX, currentTile.height, currentTile.posZ);
+                unitData.SetTile(currentPath[currentPathId]);
+                targetPosition = new Vector3(unitData.tile.posX, unitData.tile.height, unitData.tile.posZ);
                 SetNewRotation();
             }
             else
@@ -67,7 +73,7 @@ public class UnitController : MonoBehaviour
                 currentPath = null;
                 currentPathId = 0;
                 animator.SetInteger("state", (int)AnimationState.idle);
-                currentTile.tileMap.HighlightAvailableTiles(currentTile, remainingActionPoints);
+                tileMap.HighlightSelectedUnit();
             }
         }
         else
@@ -100,5 +106,13 @@ public class UnitController : MonoBehaviour
         }
 
         targetRotation = Quaternion.Euler(0f, angleY, 0f);
+    }
+
+    private void OnMouseUp()
+    {
+        if (tileMap.selectedUnit != this)
+        {
+            tileMap.SelectUnit(this);
+        }
     }
 }

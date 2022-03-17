@@ -29,21 +29,19 @@ public class TileMap : MonoBehaviour
         GenerateTilesVisual();
         GenerateUnitsData();
 
-        selectedUnit = GameObject.FindGameObjectWithTag("PlayerUnit").GetComponent<UnitController>();
-
-        availableTiles = new List<Tile>();
-        HighlightAvailableTiles(selectedUnit.unitData.tile, selectedUnit.maxActionPoints);
+        //SelectUnit(GameObject.FindGameObjectWithTag("PlayerUnit").GetComponent<UnitController>());
     }
 
     private void GenerateTilesData()
     {
         tiles = new Tile[mapSizeX, mapSizeZ];
+        availableTiles = new List<Tile>();
 
         for (int x = 0; x < mapSizeX; x++)
         {
             for (int z = 0; z < mapSizeZ; z++)
             {
-                tiles[x, z] = new Tile(this, x, z);
+                tiles[x, z] = new Tile(x, z);
             }
         }
 
@@ -100,45 +98,42 @@ public class TileMap : MonoBehaviour
     {
         units = new List<Unit>();
 
-        units.Add(new Unit(tiles[0, 0], 0));
+        for (int i = 0; i < 2; i++) //TODO: unit generation
+        {
+            units.Add(new Unit(tiles[i * 5, i]));
 
-        GameObject unit = Instantiate(unitPrefab, Vector3.zero, Quaternion.identity, unitFolder);
-        unit.GetComponent<UnitController>().unitData = units[0];
+            GameObject unit = Instantiate(unitPrefab, new Vector3(i * 5, 0, i), Quaternion.identity, unitFolder);
+            unit.GetComponent<UnitController>().SetUnitData(units[i]);
+
+            units[i].tile.tileComponent.colorState = TileComponent.ColorState.ally;
+        }
     }
 
-    public void GeneratePathTo(int posX, int posZ)
+    public void GeneratePathTo(int posX, int posZ) //TODO
     {
         if (selectedUnit.currentPath != null)
         {
             ClearCurrentPath();
         }
-
         if (availableTiles != null)
         {
             ClearAvailableTiles();
         }
 
         Dictionary<Tile, float> distanceTo = new Dictionary<Tile, float>();
-        Dictionary<Tile, Tile> prev = new Dictionary<Tile, Tile>();
-
+        Dictionary<Tile, Tile> prevTile = new Dictionary<Tile, Tile>();
         List<Tile> uncheckedTiles = new List<Tile>();
-
-        Tile sourceTile = tiles[selectedUnit.currentTile.posX, selectedUnit.currentTile.posZ];
-        Tile targetTile = tiles[posX, posZ];
-
-        distanceTo[sourceTile] = 0;
-        prev[sourceTile] = null;
 
         foreach (Tile tile in tiles)
         {
-            if (tile != sourceTile)
-            {
-                distanceTo[tile] = Mathf.Infinity;
-                prev[tile] = null;
-            }
-
+            distanceTo[tile] = Mathf.Infinity;
+            prevTile[tile] = null;
             uncheckedTiles.Add(tile);
         }
+
+        Tile sourceTile = tiles[selectedUnit.unitData.tile.posX, selectedUnit.unitData.tile.posZ];
+        Tile targetTile = tiles[posX, posZ];
+        distanceTo[sourceTile] = 0;
 
         while (uncheckedTiles.Count > 0)
         {
@@ -161,17 +156,15 @@ public class TileMap : MonoBehaviour
 
             foreach (Tile neighbour in tile.neighbours)
             {
-                float alt = distanceTo[tile] + tile.DistanceTo(neighbour);
-
-                if (alt < distanceTo[neighbour])
+                if (distanceTo[tile] + 1 < distanceTo[neighbour] && neighbour.unit == null)
                 {
-                    distanceTo[neighbour] = alt;
-                    prev[neighbour] = tile;
+                    distanceTo[neighbour] = distanceTo[tile] + 1;
+                    prevTile[neighbour] = tile;
                 }
             }
         }
 
-        if (prev[targetTile] == null)
+        if (prevTile[targetTile] == null)
         {
             return;
         }
@@ -182,23 +175,13 @@ public class TileMap : MonoBehaviour
         while (currentTile != null)
         {
             currentPath.Add(currentTile);
-            currentTile = prev[currentTile];
+            currentTile = prevTile[currentTile];
         }
 
         currentPath.Reverse();
 
         selectedUnit.currentPath = currentPath;
         HighlightCurrentPath();
-    }
-
-    private void ClearAvailableTiles()
-    {
-        foreach (Tile tile in availableTiles)
-        {
-            tile.tileComponent.colorState = TileComponent.ColorState.none;
-        }
-
-        availableTiles.Clear();
     }
 
     private void ClearCurrentPath()
@@ -212,7 +195,26 @@ public class TileMap : MonoBehaviour
         selectedUnit.currentPathId = 0;
     }
 
-    public void HighlightAvailableTiles(Tile currentTile, int actionPoints)
+    public void ClearAvailableTiles()
+    {
+        foreach (Tile tile in availableTiles)
+        {
+            tile.tileComponent.colorState = TileComponent.ColorState.none;
+        }
+
+        availableTiles.Clear();
+    }
+
+    public void HighlightSelectedUnit()
+    {
+        if (selectedUnit.currentPath == null)
+        {
+            selectedUnit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.selected;
+            HighlightAvailableTiles(selectedUnit.unitData.tile, selectedUnit.actionPoints);
+        }
+    }
+
+    private void HighlightAvailableTiles(Tile currentTile, int actionPoints)
     {
         availableTiles.Add(currentTile);
 
@@ -220,7 +222,7 @@ public class TileMap : MonoBehaviour
         {
             foreach (Tile neighbour in currentTile.neighbours)
             {
-                if (!availableTiles.Contains(neighbour))
+                if (!availableTiles.Contains(neighbour) && neighbour.unit == null)
                 {
                     neighbour.tileComponent.colorState = TileComponent.ColorState.available;
                     HighlightAvailableTiles(neighbour, actionPoints - 1);
@@ -235,5 +237,17 @@ public class TileMap : MonoBehaviour
         {
             tile.tileComponent.colorState = TileComponent.ColorState.path;
         }
+    }
+
+    public void SelectUnit(UnitController unit)
+    {
+        if (selectedUnit != null)
+        {
+            ClearAvailableTiles();
+            selectedUnit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.ally;
+        }
+
+        selectedUnit = unit;
+        HighlightSelectedUnit();
     }
 }

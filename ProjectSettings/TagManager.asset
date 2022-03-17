@@ -5,8 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - PlayerUnit
-  - Map
   - UnitFolder
+  - TileMap
   layers:
   - Default
   - TransparentFX

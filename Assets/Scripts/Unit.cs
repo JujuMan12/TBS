@@ -4,12 +4,20 @@ using UnityEngine;
 
 public class Unit
 {
-    public Unit(Tile tile, int unitId)
+    public Unit(Tile tile)
     {
         this.tile = tile;
-        this.unitId = unitId;
+        tile.unit = this;
     }
 
     public Tile tile;
-    readonly public int unitId;
+    public UnitController unitController;
+
+    public void SetTile(Tile newTile)
+    {
+        tile.unit = null;
+
+        tile = newTile;
+        tile.unit = this;
+    }
 }

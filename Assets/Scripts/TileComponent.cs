@@ -5,10 +5,11 @@ using UnityEngine;
 public class TileComponent : MonoBehaviour
 {
     [HideInInspector] public Tile tileData;
+    [HideInInspector] private TileMap tileMap;
     [HideInInspector] private SpriteRenderer sprite;
     [HideInInspector] private Color currentColor;
     [HideInInspector] private Color targetColor;
-    [HideInInspector] public enum ColorState { none, impassable, available, path, enemy, ally };
+    [HideInInspector] public enum ColorState { none, impassable, available, path, enemy, ally, selected };
     [HideInInspector] public ColorState colorState;
 
     [Header("Colors")]
@@ -16,9 +17,12 @@ public class TileComponent : MonoBehaviour
     [SerializeField] public Color impassableColor = new Color(1f, 0f, 0f, 0.25f);
     [SerializeField] public Color availableColor = new Color(0f, 1f, 0f, 0.25f);
     [SerializeField] public Color pathColor = new Color(1f, 1f, 0f, 0.25f);
+    [SerializeField] public Color allyColor = new Color(0f, 0f, 1f, 0.25f);
+    [SerializeField] public Color selectedColor = new Color(1f, 1f, 0f, 0.25f);
 
     private void Start()
     {
+        tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
         sprite = gameObject.GetComponent<SpriteRenderer>();
         currentColor = sprite.color;
         targetColor = currentColor;
@@ -52,13 +56,25 @@ public class TileComponent : MonoBehaviour
         {
             targetColor = pathColor;
         }
+        else if (colorState == ColorState.ally)
+        {
+            targetColor = allyColor;
+        }
+        else if (colorState == ColorState.selected)
+        {
+            targetColor = selectedColor;
+        }
     }
 
     private void OnMouseUp()
     {
-        if (tileData.passable)
+        if (tileData.unit != null) //TODO
         {
-            tileData.tileMap.GeneratePathTo(tileData.posX, tileData.posZ);
+            tileMap.SelectUnit(tileData.unit.unitController);
+        }
+        else if (tileMap.selectedUnit != null && tileData.passable)
+        {
+            tileMap.GeneratePathTo(tileData.posX, tileData.posZ);
         }
         else
         {

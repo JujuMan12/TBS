@@ -289,8 +289,8 @@ GameObject:
   - component: {fileID: 819794375}
   - component: {fileID: 819794376}
   m_Layer: 0
-  m_Name: Map
-  m_TagString: Map
+  m_Name: Tile Map
+  m_TagString: TileMap
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -325,9 +325,6 @@ MonoBehaviour:
   mapSizeX: 10
   mapSizeZ: 10
   tilePrefab: {fileID: 1172534567677172424, guid: 17fc76babbd78ef41aab02c02cc4cd84, type: 3}
-  defaultColor: {r: 1, g: 1, b: 1, a: 0.25}
-  pathColor: {r: 1, g: 1, b: 0, a: 0.25}
-  impassableColor: {r: 1, g: 0, b: 0, a: 0.25}
   impassableTiles:
   - {x: 1, y: 2}
   unitPrefab: {fileID: 928723031, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}

@@ -454,6 +454,7 @@ GameObject:
   - component: {fileID: 928723033}
   - component: {fileID: 928723032}
   - component: {fileID: 1766783509}
+  - component: {fileID: 1441405954913142475}
   m_Layer: 0
   m_Name: Footman
   m_TagString: PlayerUnit
@@ -509,9 +510,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentPathId: 0
+  remainingActionPoints: 0
+  maxActionPoints: 4
   movementSpeed: 10
   tileStopSpeed: 0.05
   rotationSpeed: 500
+--- !u!136 &1441405954913142475
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 928723031}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2.25
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.75, z: 0.1}
 --- !u!1 &1037657034
 GameObject:
   m_ObjectHideFlags: 0
