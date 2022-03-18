@@ -19,8 +19,8 @@ public class UnitController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
-    [SerializeField] private float tileStopSpeed = 0.05f;
-    [SerializeField] private float rotationSpeed = 50f;
+    [SerializeField] private float tileMovementSpeed = 0.1f;
+    [SerializeField] private float rotationSpeed = 500f;
 
     private void Start()
     {
@@ -57,11 +57,12 @@ public class UnitController : MonoBehaviour
 
     private void HandleMovement()
     {
-        if (Mathf.Abs(transform.position.x - targetPosition.x) < tileStopSpeed && Mathf.Abs(transform.position.z - targetPosition.z) < tileStopSpeed)
+        if (Mathf.Abs(transform.position.x - targetPosition.x) < tileMovementSpeed && Mathf.Abs(transform.position.z - targetPosition.z) < tileMovementSpeed)
         {
+            transform.position = targetPosition;
             unitData.tile.tileComponent.colorState = TileComponent.ColorState.none;
 
-            if (currentPathId != currentPath.Count - 1)
+            if (currentPathId != currentPath.Count - 1 && currentPath[currentPathId + 1].unit == null)
             {
                 currentPathId++;
                 unitData.SetTile(currentPath[currentPathId]);
@@ -108,7 +109,7 @@ public class UnitController : MonoBehaviour
         targetRotation = Quaternion.Euler(0f, angleY, 0f);
     }
 
-    private void OnMouseUp()
+    virtual public void OnMouseUp()
     {
         if (tileMap.selectedUnit != this)
         {

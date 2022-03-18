@@ -510,10 +510,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentPathId: 0
-  remainingActionPoints: 0
+  actionPoints: 0
   maxActionPoints: 4
   movementSpeed: 10
-  tileStopSpeed: 0.05
+  tileMovementSpeed: 0.1
   rotationSpeed: 500
 --- !u!136 &1441405954913142475
 CapsuleCollider:

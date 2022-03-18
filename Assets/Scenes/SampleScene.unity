@@ -328,6 +328,8 @@ MonoBehaviour:
   impassableTiles:
   - {x: 1, y: 2}
   unitPrefab: {fileID: 928723031, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}
+  enemyPrefab: {fileID: 388476414, guid: 7df524699deb44341b3693c8538df185, type: 3}
+  isPlayerTurn: 1
 --- !u!1 &929284952
 GameObject:
   m_ObjectHideFlags: 0

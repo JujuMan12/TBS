@@ -14,9 +14,10 @@ public class TileComponent : MonoBehaviour
 
     [Header("Colors")]
     [SerializeField] public Color defaultColor = new Color(1f, 1f, 1f, 0.25f);
-    [SerializeField] public Color impassableColor = new Color(1f, 0f, 0f, 0.25f);
+    [SerializeField] public Color impassableColor = new Color(0f, 0f, 0f, 0.25f);
     [SerializeField] public Color availableColor = new Color(0f, 1f, 0f, 0.25f);
     [SerializeField] public Color pathColor = new Color(1f, 1f, 0f, 0.25f);
+    [SerializeField] public Color enemyColor = new Color(1f, 0f, 0f, 0.25f);
     [SerializeField] public Color allyColor = new Color(0f, 0f, 1f, 0.25f);
     [SerializeField] public Color selectedColor = new Color(1f, 1f, 0f, 0.25f);
 
@@ -56,6 +57,10 @@ public class TileComponent : MonoBehaviour
         {
             targetColor = pathColor;
         }
+        else if (colorState == ColorState.enemy)
+        {
+            targetColor = enemyColor;
+        }
         else if (colorState == ColorState.ally)
         {
             targetColor = allyColor;
@@ -68,17 +73,16 @@ public class TileComponent : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (tileData.unit != null) //TODO
+        if (tileMap.isPlayerTurn)
         {
-            tileMap.SelectUnit(tileData.unit.unitController);
-        }
-        else if (tileMap.selectedUnit != null && tileData.passable)
-        {
-            tileMap.GeneratePathTo(tileData.posX, tileData.posZ);
-        }
-        else
-        {
-            //TODO
+            if (tileData.unit != null && tileData.unit.isPlayerOwned)
+            {
+                tileMap.SelectUnit(tileData.unit.unitController);
+            }
+            else if (tileMap.selectedUnit != null)
+            {
+                tileMap.GeneratePathTo(tileData.posX, tileData.posZ);
+            }
         }
     }
 

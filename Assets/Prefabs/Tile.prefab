@@ -109,3 +109,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f76db0ce643ab6a4cbdaab2b4cded3af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  colorState: 0
+  defaultColor: {r: 1, g: 1, b: 1, a: 0.25}
+  impassableColor: {r: 0, g: 0, b: 0, a: 0.25}
+  availableColor: {r: 0, g: 1, b: 0, a: 0.25}
+  pathColor: {r: 1, g: 1, b: 0, a: 0.25}
+  enemyColor: {r: 1, g: 0, b: 0, a: 0.25}
+  allyColor: {r: 0, g: 0, b: 1, a: 0.25}
+  selectedColor: {r: 1, g: 1, b: 0, a: 0.25}
