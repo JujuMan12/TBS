@@ -5,7 +5,9 @@ using UnityEngine;
 public class TileMap : MonoBehaviour
 {
     [HideInInspector] public UnitController selectedUnit;
-    [HideInInspector] private List<Tile> availableTiles;
+    [HideInInspector] public enum ActionStates { movement, attack, defence }
+    [HideInInspector] public ActionStates actionState = ActionStates.movement;
+    [HideInInspector] private List<Tile> highlightedTiles;
     [HideInInspector] private Transform unitFolder;
     [HideInInspector] private Tile[,] tiles;
     [HideInInspector] private List<Unit> units;
@@ -37,7 +39,7 @@ public class TileMap : MonoBehaviour
     private void GenerateTilesData()
     {
         tiles = new Tile[mapSizeX, mapSizeZ];
-        availableTiles = new List<Tile>();
+        highlightedTiles = new List<Tile>();
 
         for (int x = 0; x < mapSizeX; x++)
         {
@@ -174,9 +176,9 @@ public class TileMap : MonoBehaviour
         {
             ClearCurrentPath();
         }
-        if (availableTiles != null)
+        if (highlightedTiles != null)
         {
-            ClearAvailableTiles();
+            ClearHighlightedTiles();
         }
 
         List<Tile> currentPath = new List<Tile>();
@@ -205,39 +207,52 @@ public class TileMap : MonoBehaviour
         selectedUnit.currentPathId = 0;
     }
 
-    public void ClearAvailableTiles()
+    public void ClearHighlightedTiles()
     {
-        foreach (Tile tile in availableTiles)
+        foreach (Tile tile in highlightedTiles)
         {
             tile.tileComponent.colorState = TileComponent.ColorState.none;
         }
 
-        availableTiles.Clear();
+        highlightedTiles.Clear();
     }
 
     public void HighlightSelectedUnit()
     {
-        if (selectedUnit.currentPath == null)
+        if (selectedUnit != null && selectedUnit.currentPath == null)
         {
+            ClearHighlightedTiles();
             Tile unitTile = selectedUnit.unitData.tile;
 
-            availableTiles.Add(unitTile);
+            highlightedTiles.Add(unitTile);
             unitTile.tileComponent.colorState = TileComponent.ColorState.selected;
-            HighlightNeighbourTiles(unitTile, selectedUnit.actionPoints);
+
+            if (actionState == ActionStates.movement)
+            {
+                HighlightNeighbourTiles(unitTile, selectedUnit.actionPoints, TileComponent.ColorState.available);
+            }
+            else if (actionState == ActionStates.attack)
+            {
+                HighlightNeighbourTiles(unitTile, selectedUnit.attackRange, TileComponent.ColorState.enemy);
+            }
+            else
+            {
+                HighlightNeighbourTiles(unitTile, selectedUnit.defenceRange, TileComponent.ColorState.ally);
+            }
         }
     }
 
-    private void HighlightNeighbourTiles(Tile currentTile, int actionPoints)
+    private void HighlightNeighbourTiles(Tile currentTile, int range, TileComponent.ColorState colorState)
     {
-        if (actionPoints > 0)
+        if (range > 0)
         {
             foreach (Tile neighbour in currentTile.neighbours)
             {
-                if (!availableTiles.Contains(neighbour) && neighbour.unit == null)
+                if (!highlightedTiles.Contains(neighbour) && neighbour.unit == null)
                 {
-                    availableTiles.Add(neighbour);
-                    neighbour.tileComponent.colorState = TileComponent.ColorState.available;
-                    HighlightNeighbourTiles(neighbour, actionPoints - 1);
+                    highlightedTiles.Add(neighbour);
+                    neighbour.tileComponent.colorState = colorState;
+                    HighlightNeighbourTiles(neighbour, range - 1, colorState);
                 }
             }
         }
@@ -253,13 +268,20 @@ public class TileMap : MonoBehaviour
 
     public void SelectUnit(UnitController unit)
     {
-        if (selectedUnit != null)
-        {
-            ClearAvailableTiles();
-            selectedUnit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.ally;
-        }
+        UnitController prevSelectedUnit = selectedUnit;
 
         selectedUnit = unit;
+        SetActionState(ActionStates.movement);
+
+        if (prevSelectedUnit != null && prevSelectedUnit.currentPath == null)
+        {
+            prevSelectedUnit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.ally;
+        }
+    }
+
+    public void SetActionState(ActionStates newState)
+    {
+        actionState = newState;
         HighlightSelectedUnit();
     }
 }

@@ -16,6 +16,18 @@ public class UnitController : MonoBehaviour
 
     [Header("Characteristics")]
     [SerializeField] public int maxActionPoints = 4;
+    [SerializeField] private int defaultMinProtection;
+    [SerializeField] private int defaultMaxProtection;
+
+    [Header("Ability - Attack")]
+    [SerializeField] public int attackRange = 1;
+    [SerializeField] private int attackMinDamage;
+    [SerializeField] private int attackMaxDamage = 1;
+
+    [Header("Ability - Defence")]
+    [SerializeField] public int defenceRange;
+    [SerializeField] private int defenceMinProtection;
+    [SerializeField] private int defenceMaxProtection = 1;
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
@@ -60,7 +72,12 @@ public class UnitController : MonoBehaviour
         if (Mathf.Abs(transform.position.x - targetPosition.x) < tileMovementSpeed && Mathf.Abs(transform.position.z - targetPosition.z) < tileMovementSpeed)
         {
             transform.position = targetPosition;
-            unitData.tile.tileComponent.colorState = TileComponent.ColorState.none;
+            Tile unitTile = unitData.tile;
+
+            if (unitTile.tileComponent.colorState == TileComponent.ColorState.path)
+            {
+                unitTile.tileComponent.colorState = TileComponent.ColorState.none;
+            }
 
             if (currentPathId != currentPath.Count - 1 && currentPath[currentPathId + 1].unit == null)
             {
@@ -74,7 +91,15 @@ public class UnitController : MonoBehaviour
                 currentPath = null;
                 currentPathId = 0;
                 animator.SetInteger("state", (int)AnimationState.idle);
-                tileMap.HighlightSelectedUnit();
+
+                if (tileMap.selectedUnit == this)
+                {
+                    tileMap.HighlightSelectedUnit();
+                }
+                else
+                {
+                    unitTile.tileComponent.colorState = TileComponent.ColorState.ally;
+                }
             }
         }
         else
@@ -111,7 +136,7 @@ public class UnitController : MonoBehaviour
 
     virtual public void OnMouseUp()
     {
-        if (tileMap.selectedUnit != this)
+        if (tileMap.isPlayerTurn && tileMap.selectedUnit != this)
         {
             tileMap.SelectUnit(this);
         }
