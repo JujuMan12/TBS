@@ -81,7 +81,7 @@ public class TileComponent : MonoBehaviour
             }
             else if (tileMap.selectedUnit != null && tileMap.actionState == TileMap.ActionStates.movement)
             {
-                tileMap.GeneratePathTo(tileData.posX, tileData.posZ);
+                tileMap.GeneratePathTo(tileData.posX, tileData.posZ, tileMap.selectedUnit, false);
             }
         }
     }

@@ -15,6 +15,14 @@ public class UIController : MonoBehaviour
         tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
     }
 
+    private void Update()
+    {
+        if (Input.GetButtonDown("Cancel")) //TODO: rework
+        {
+            Application.Quit();
+        }
+    }
+
     private void FixedUpdate()
     {
         if (tileMap.selectedUnit != null && tileMap.selectedUnit.currentPath == null)

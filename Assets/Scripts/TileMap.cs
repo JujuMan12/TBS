@@ -9,12 +9,12 @@ public class TileMap : MonoBehaviour
     [HideInInspector] public ActionStates actionState = ActionStates.movement;
     [HideInInspector] public List<Tile> highlightedTiles;
     [HideInInspector] private Transform unitFolder;
-    [HideInInspector] private Tile[,] tiles;
-    [HideInInspector] private List<Unit> units;
+    [HideInInspector] public Tile[,] tiles;
+    [HideInInspector] public List<Unit> units;
 
     [Header("Map")]
-    [SerializeField] private int mapSizeX = 10;
-    [SerializeField] private int mapSizeZ = 10;
+    [SerializeField] private int mapSizeX = 20;
+    [SerializeField] private int mapSizeZ = 20;
 
     [Header("Tiles")]
     [SerializeField] private GameObject tilePrefab;
@@ -23,6 +23,9 @@ public class TileMap : MonoBehaviour
     [Header("Units")]
     [SerializeField] private GameObject unitPrefab;
     [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private int playerUnitNumber = 10;
+    [SerializeField] private int enemyUnitNumber = 10;
+    [SerializeField] private int unitSpawnZMax = 6;
 
     [Header("AI")]
     [SerializeField] public bool isPlayerTurn = true;
@@ -34,6 +37,15 @@ public class TileMap : MonoBehaviour
         GenerateTilesData();
         GenerateTilesVisual();
         GenerateUnitsData();
+        GenerateUnitsVisual();
+    }
+
+    private void FixedUpdate()
+    {
+        if (!units.Exists(unit => unit.isPlayerOwned) || !units.Exists(unit => !unit.isPlayerOwned)) //TODO: rework
+        {
+            Application.Quit();
+        }
     }
 
     private void GenerateTilesData()
@@ -102,25 +114,65 @@ public class TileMap : MonoBehaviour
     {
         units = new List<Unit>();
 
-        for (int i = 0; i < 2; i++) //TODO: unit generation
+        for (int i = 0; i < playerUnitNumber; i++)
         {
-            units.Add(new Unit(tiles[i * 5, i], true));
+            while (true)
+            {
+                int randomX = Random.Range(0, mapSizeX);
+                int randomZ = Random.Range(0, unitSpawnZMax);
 
-            GameObject unit = Instantiate(unitPrefab, new Vector3(i * 5, 0, i), Quaternion.identity, unitFolder);
-            unit.GetComponent<UnitController>().SetUnitData(units[i]);
-
-            units[i].tile.tileComponent.colorState = TileComponent.ColorState.ally;
+                if (tiles[randomX, randomZ].unit == null && tiles[randomX, randomZ].passable)
+                {
+                    units.Add(new Unit(tiles[randomX, randomZ], true));
+                    break;
+                }
+            }
         }
 
-        units.Add(new Unit(tiles[3, 2], false));
+        for (int i = 0; i < enemyUnitNumber; i++)
+        {
+            while (true)
+            {
+                int randomX = Random.Range(0, mapSizeX);
+                int randomZ = Random.Range(mapSizeZ - unitSpawnZMax, mapSizeZ);
 
-        GameObject unitEnemy = Instantiate(enemyPrefab, new Vector3(3, 0, 2), Quaternion.Euler(0f, 180f, 0f), unitFolder);
-        unitEnemy.GetComponent<UnitController>().SetUnitData(units[2]);
-
-        units[2].tile.tileComponent.colorState = TileComponent.ColorState.enemy;
+                if (tiles[randomX, randomZ].unit == null && tiles[randomX, randomZ].passable)
+                {
+                    units.Add(new Unit(tiles[randomX, randomZ], false));
+                    break;
+                }
+            }
+        }
     }
 
-    public void GeneratePathTo(int posX, int posZ) //TODO
+    private void GenerateUnitsVisual()
+    {
+        foreach (Unit unit in units)
+        {
+            GameObject prefab;
+            Quaternion rotation;
+            TileComponent.ColorState colorState;
+
+            if (unit.isPlayerOwned)
+            {
+                prefab = unitPrefab;
+                rotation = Quaternion.Euler(0f, 0f, 0f);
+                colorState = TileComponent.ColorState.ally;
+            }
+            else
+            {
+                prefab = enemyPrefab;
+                rotation = Quaternion.Euler(0f, 180f, 0f);
+                colorState = TileComponent.ColorState.enemy;
+            }
+
+            GameObject unitGO = Instantiate(prefab, new Vector3(unit.tile.posX, unit.tile.height, unit.tile.posZ), rotation, unitFolder);
+            unitGO.GetComponent<UnitController>().SetUnitData(unit);
+            unit.tile.tileComponent.colorState = colorState;
+        }
+    }
+
+    public void GeneratePathTo(int posX, int posZ, UnitController unit, bool canIgnoreActionPoints)
     {
         Dictionary<Tile, float> distanceTo = new Dictionary<Tile, float>();
         Dictionary<Tile, Tile> prevTile = new Dictionary<Tile, Tile>();
@@ -133,7 +185,7 @@ public class TileMap : MonoBehaviour
             uncheckedTiles.Add(tile);
         }
 
-        Tile sourceTile = tiles[selectedUnit.unitData.tile.posX, selectedUnit.unitData.tile.posZ];
+        Tile sourceTile = tiles[unit.unitData.tile.posX, unit.unitData.tile.posZ];
         Tile targetTile = tiles[posX, posZ];
         distanceTo[sourceTile] = 0;
 
@@ -158,7 +210,7 @@ public class TileMap : MonoBehaviour
 
             foreach (Tile neighbour in tile.neighbours)
             {
-                if (distanceTo[tile] + 1 < distanceTo[neighbour] && neighbour.unit == null)
+                if (distanceTo[tile] + 1 < distanceTo[neighbour] && (neighbour.unit == null || neighbour == targetTile))
                 {
                     distanceTo[neighbour] = distanceTo[tile] + 1;
                     prevTile[neighbour] = tile;
@@ -166,13 +218,13 @@ public class TileMap : MonoBehaviour
             }
         }
 
-        if (prevTile[targetTile] == null || distanceTo[targetTile] > selectedUnit.actionPoints)
+        if (prevTile[targetTile] == null || distanceTo[targetTile] > unit.actionPoints && !canIgnoreActionPoints)
         {
             //TODO: special sound
             return;
         }
 
-        if (selectedUnit.currentPath != null)
+        if (unit.currentPath != null)
         {
             ClearCurrentPath();
         }
@@ -192,8 +244,9 @@ public class TileMap : MonoBehaviour
 
         currentPath.Reverse();
 
-        selectedUnit.currentPath = currentPath;
-        HighlightCurrentPath();
+        unit.currentPath = currentPath;
+        unit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.path; //TODO
+        unit.HighlightCurrentPath();
     }
 
     private void ClearCurrentPath()
@@ -251,14 +304,6 @@ public class TileMap : MonoBehaviour
                     HighlightNeighbourTiles(neighbour, range - 1, colorState);
                 }
             }
-        }
-    }
-
-    private void HighlightCurrentPath()
-    {
-        foreach (Tile tile in selectedUnit.currentPath)
-        {
-            tile.tileComponent.colorState = TileComponent.ColorState.path;
         }
     }
 

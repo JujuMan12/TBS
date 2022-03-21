@@ -61,8 +61,7 @@ public class UnitController : MonoBehaviour
 
     private void Update()
     {
-        healthPointsText.text = healthPoints.ToString();
-        actionPointsText.text = actionPoints.ToString();
+        UpdateText();
 
         if (currentPath != null)
         {
@@ -73,6 +72,12 @@ public class UnitController : MonoBehaviour
         {
             UpdateRotation();
         }
+    }
+
+    private void UpdateText()
+    {
+        healthPointsText.text = healthPoints.ToString();
+        actionPointsText.text = actionPoints.ToString();
     }
 
     private void HandleMovement()
@@ -87,7 +92,7 @@ public class UnitController : MonoBehaviour
                 unitTile.tileComponent.colorState = TileComponent.ColorState.none;
             }
 
-            if (currentPathId != currentPath.Count - 1 && currentPath[currentPathId + 1].unit == null)
+            if (currentPathId != currentPath.Count - 1 && currentPath[currentPathId + 1].unit == null && actionPoints > 0)
             {
                 actionPoints--;
                 currentPathId++;
@@ -105,9 +110,13 @@ public class UnitController : MonoBehaviour
                 {
                     tileMap.HighlightSelectedUnit();
                 }
-                else
+                else if (unitData.isPlayerOwned)
                 {
                     unitTile.tileComponent.colorState = TileComponent.ColorState.ally;
+                }
+                else
+                {
+                    unitTile.tileComponent.colorState = TileComponent.ColorState.enemy;
                 }
             }
         }
@@ -143,6 +152,17 @@ public class UnitController : MonoBehaviour
         targetRotation = Quaternion.Euler(0f, angleY, 0f);
     }
 
+    public void HighlightCurrentPath()
+    {
+        for (int i = 0; i < Mathf.Min(currentPath.Count, actionPoints + 1); i++)
+        {
+            if (currentPath[i].tileComponent.colorState == TileComponent.ColorState.none)
+            {
+                currentPath[i].tileComponent.colorState = TileComponent.ColorState.path;
+            }
+        }
+    }
+
     virtual public void OnMouseUp()
     {
         if (tileMap.isPlayerTurn)
@@ -165,8 +185,25 @@ public class UnitController : MonoBehaviour
             return;
         }
 
-        Vector3 targetPosition = target.transform.position - transform.position;
-        float angle = Mathf.Atan2(targetPosition.z, targetPosition.x) * Mathf.Rad2Deg + 90f;
+        Vector3 targetPosition = target.transform.position;
+        float angle;
+        if (targetPosition.x > transform.position.x) //TODO: rework
+        {
+            angle = 90f;
+        }
+        else if (targetPosition.x < transform.position.x)
+        {
+            angle = -90f;
+        }
+        else if (targetPosition.z > transform.position.z)
+        {
+            angle = 0f;
+        }
+        else
+        {
+            angle = 180f;
+        }
+
         targetRotation = Quaternion.Euler(new Vector3(0f, angle, 0f));
         target.targetRotation = Quaternion.Euler(new Vector3(0f, angle - 180f, 0f));
 
@@ -191,13 +228,15 @@ public class UnitController : MonoBehaviour
 
     virtual public void TakeDamage(int damage)
     {
-        animator.SetTrigger("damage");
-
         healthPoints -= damage;
 
         if (healthPoints <= 0)
         {
             Die();
+        }
+        else
+        {
+            animator.SetTrigger("damage");
         }
     }
 
@@ -208,8 +247,13 @@ public class UnitController : MonoBehaviour
 
     private void Die()
     {
+        UpdateText();
         animator.SetInteger("state", (int)AnimationState.death);
+        unitData.tile.tileComponent.colorState = TileComponent.ColorState.none;
+
         Destroy(gameObject, 2f);
+        unitData.tile.unit = null;
+        tileMap.units.Remove(unitData);
         this.enabled = false;
     }
 }

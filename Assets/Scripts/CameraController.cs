@@ -8,7 +8,9 @@ public class CameraController : MonoBehaviour
 
     [Header("Movement and Rotation")]
     [SerializeField] private float movementSpeed = 20f;
-    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float rotationSpeed = 7.5f;
+    [SerializeField] private float posMin = 0f;
+    [SerializeField] private float posMax = 20f;
 
     private void Start()
     {
@@ -25,6 +27,13 @@ public class CameraController : MonoBehaviour
     {
         Vector3 translate = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         transform.Translate(translate * movementSpeed * Time.deltaTime, Space.Self);
+
+        float posX = transform.position.x;
+        float posZ = transform.position.z;
+        posX = Mathf.Clamp(posX, posMin, posMax);
+        posZ = Mathf.Clamp(posZ, posMin, posMax);
+
+        transform.position = new Vector3(posX, transform.position.y, posZ);
     }
 
     private void HandleRotation()
