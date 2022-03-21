@@ -6,6 +6,11 @@ public class UnitController_Enemy : UnitController
 {
     override public void OnMouseUp()
     {
-        return; //TODO
+        UnitController selectedUnit = tileMap.selectedUnit;
+
+        if (selectedUnit != null && tileMap.actionState == TileMap.ActionStates.attack && selectedUnit.actionPoints >= selectedUnit.attackCost)
+        {
+            selectedUnit.AttackTarget(this);
+        }
     }
 }

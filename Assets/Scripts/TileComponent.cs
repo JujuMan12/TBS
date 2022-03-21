@@ -75,11 +75,11 @@ public class TileComponent : MonoBehaviour
     {
         if (tileMap.isPlayerTurn)
         {
-            if (tileData.unit != null && tileData.unit.isPlayerOwned)
+            if (tileData.unit != null)
             {
-                tileMap.SelectUnit(tileData.unit.unitController);
+                tileData.unit.unitController.OnMouseUp();
             }
-            else if (tileMap.selectedUnit != null)
+            else if (tileMap.selectedUnit != null && tileMap.actionState == TileMap.ActionStates.movement)
             {
                 tileMap.GeneratePathTo(tileData.posX, tileData.posZ);
             }

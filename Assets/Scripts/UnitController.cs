@@ -1,33 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class UnitController : MonoBehaviour
 {
     [HideInInspector] public Unit unitData;
     [HideInInspector] public List<Tile> currentPath;
     [HideInInspector] public int currentPathId;
-    [HideInInspector] private TileMap tileMap;
+    [HideInInspector] protected TileMap tileMap;
     [HideInInspector] private Vector3 targetPosition;
     [HideInInspector] private Quaternion targetRotation;
+    [HideInInspector] public int healthPoints;
     [HideInInspector] public int actionPoints;
-    [HideInInspector] public enum AnimationState { idle, moving };
+    [HideInInspector] public bool inDefenceStance;
+    [HideInInspector] public enum AnimationState { idle, moving, death };
     [HideInInspector] private Animator animator;
 
     [Header("Characteristics")]
+    [SerializeField] public int maxHealthPoints = 1;
     [SerializeField] public int maxActionPoints = 4;
-    [SerializeField] private int defaultMinProtection;
-    [SerializeField] private int defaultMaxProtection;
+    [SerializeField] private int minProtection;
+    [SerializeField] private int maxProtection;
+    [SerializeField] private TextMeshPro healthPointsText;
+    [SerializeField] private TextMeshPro actionPointsText;
 
     [Header("Ability - Attack")]
     [SerializeField] public int attackRange = 1;
-    [SerializeField] private int attackMinDamage;
-    [SerializeField] private int attackMaxDamage = 1;
+    [SerializeField] public int attackCost = 2;
+    [SerializeField] private int minDamage;
+    [SerializeField] private int maxDamage = 1;
 
     [Header("Ability - Defence")]
-    [SerializeField] public int defenceRange;
-    [SerializeField] private int defenceMinProtection;
-    [SerializeField] private int defenceMaxProtection = 1;
+    [SerializeField] private int defenceMinBonus;
+    [SerializeField] private int defenceMaxBonus = 1;
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
@@ -36,15 +42,14 @@ public class UnitController : MonoBehaviour
 
     private void Start()
     {
-        InitVars();
-    }
-
-    private void InitVars()
-    {
         tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
+
         targetPosition = transform.position;
         targetRotation = transform.rotation;
+
+        healthPoints = maxHealthPoints;
         actionPoints = maxActionPoints;
+
         animator = gameObject.GetComponent<Animator>();
     }
 
@@ -56,6 +61,9 @@ public class UnitController : MonoBehaviour
 
     private void Update()
     {
+        healthPointsText.text = healthPoints.ToString();
+        actionPointsText.text = actionPoints.ToString();
+
         if (currentPath != null)
         {
             HandleMovement();
@@ -81,6 +89,7 @@ public class UnitController : MonoBehaviour
 
             if (currentPathId != currentPath.Count - 1 && currentPath[currentPathId + 1].unit == null)
             {
+                actionPoints--;
                 currentPathId++;
                 unitData.SetTile(currentPath[currentPathId]);
                 targetPosition = new Vector3(unitData.tile.posX, unitData.tile.height, unitData.tile.posZ);
@@ -136,9 +145,71 @@ public class UnitController : MonoBehaviour
 
     virtual public void OnMouseUp()
     {
-        if (tileMap.isPlayerTurn && tileMap.selectedUnit != this)
+        if (tileMap.isPlayerTurn)
         {
-            tileMap.SelectUnit(this);
+            if (tileMap.selectedUnit != this)
+            {
+                tileMap.SelectUnit(this);
+            }
+            else if (tileMap.actionState == TileMap.ActionStates.defence)
+            {
+                SetDefenceStance();
+            }
         }
+    }
+
+    public void AttackTarget(UnitController target)
+    {
+        if (!unitData.tile.neighbours.Contains(target.unitData.tile)) //TODO: range
+        {
+            return;
+        }
+
+        Vector3 targetPosition = target.transform.position - transform.position;
+        float angle = Mathf.Atan2(targetPosition.z, targetPosition.x) * Mathf.Rad2Deg + 90f;
+        targetRotation = Quaternion.Euler(new Vector3(0f, angle, 0f));
+        target.targetRotation = Quaternion.Euler(new Vector3(0f, angle - 180f, 0f));
+
+        animator.SetTrigger("attack");
+
+        actionPoints -= attackCost;
+        int damage = Random.Range(minDamage, maxDamage);
+        int protection = Random.Range(target.minProtection, target.maxProtection);
+
+        if (target.inDefenceStance)
+        {
+            protection += Random.Range(target.defenceMinBonus, target.defenceMaxBonus);
+        }
+
+        damage -= protection;
+
+        if (damage > 0)
+        {
+            target.TakeDamage(damage);
+        }
+    }
+
+    virtual public void TakeDamage(int damage)
+    {
+        animator.SetTrigger("damage");
+
+        healthPoints -= damage;
+
+        if (healthPoints <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void SetDefenceStance()
+    {
+        print("defence");
+    }
+
+    private void Die()
+    {
+        animator.SetInteger("state", (int)AnimationState.death);
+        Destroy(gameObject, 2f);
+        this.enabled = false;
     }
 }

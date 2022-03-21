@@ -7,7 +7,7 @@ public class TileMap : MonoBehaviour
     [HideInInspector] public UnitController selectedUnit;
     [HideInInspector] public enum ActionStates { movement, attack, defence }
     [HideInInspector] public ActionStates actionState = ActionStates.movement;
-    [HideInInspector] private List<Tile> highlightedTiles;
+    [HideInInspector] public List<Tile> highlightedTiles;
     [HideInInspector] private Transform unitFolder;
     [HideInInspector] private Tile[,] tiles;
     [HideInInspector] private List<Unit> units;
@@ -114,7 +114,7 @@ public class TileMap : MonoBehaviour
 
         units.Add(new Unit(tiles[3, 2], false));
 
-        GameObject unitEnemy = Instantiate(enemyPrefab, new Vector3(3, 0, 2), Quaternion.identity, unitFolder);
+        GameObject unitEnemy = Instantiate(enemyPrefab, new Vector3(3, 0, 2), Quaternion.Euler(0f, 180f, 0f), unitFolder);
         unitEnemy.GetComponent<UnitController>().SetUnitData(units[2]);
 
         units[2].tile.tileComponent.colorState = TileComponent.ColorState.enemy;
@@ -234,10 +234,6 @@ public class TileMap : MonoBehaviour
             else if (actionState == ActionStates.attack)
             {
                 HighlightNeighbourTiles(unitTile, selectedUnit.attackRange, TileComponent.ColorState.enemy);
-            }
-            else
-            {
-                HighlightNeighbourTiles(unitTile, selectedUnit.defenceRange, TileComponent.ColorState.ally);
             }
         }
     }
