@@ -7,8 +7,9 @@ public class ActionButtons : MonoBehaviour
 {
     [HideInInspector] private TileMap tileMap;
 
-    [Header("Button")]
+    [Header("Controls")]
     [SerializeField] private Button button;
+    [SerializeField] private string input;
 
     [Header("Action")]
     [SerializeField] private TileMap.ActionStates action;
@@ -16,6 +17,14 @@ public class ActionButtons : MonoBehaviour
     private void Start()
     {
         tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetButtonDown(input))
+        {
+            SelectThisAction();
+        }
     }
 
     private void FixedUpdate()

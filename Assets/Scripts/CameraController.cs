@@ -5,12 +5,17 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [HideInInspector] private float targetAngleY;
+    [HideInInspector] private bool infoLayerIsShown;
 
     [Header("Movement and Rotation")]
     [SerializeField] private float movementSpeed = 20f;
     [SerializeField] private float rotationSpeed = 7.5f;
     [SerializeField] private float posMin = 0f;
     [SerializeField] private float posMax = 20f;
+
+    [Header("Layers")]
+    [SerializeField] private LayerMask allLayers;
+    [SerializeField] private LayerMask defaultLayers;
 
     private void Start()
     {
@@ -21,6 +26,7 @@ public class CameraController : MonoBehaviour
     {
         HandleMovement();
         HandleRotation();
+        HandleLayers();
     }
 
     private void HandleMovement()
@@ -66,5 +72,20 @@ public class CameraController : MonoBehaviour
         }
 
         //transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0f, targetAngleY, 0f), rotationSpeed * Time.deltaTime);
+    }
+
+    private void HandleLayers()
+    {
+        if (Input.GetButtonDown("Show Stats"))
+        {
+            if (Camera.main.cullingMask == defaultLayers)
+            {
+                Camera.main.cullingMask = allLayers;
+            }
+            else
+            {
+                Camera.main.cullingMask = defaultLayers;
+            }
+        }
     }
 }

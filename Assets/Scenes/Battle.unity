@@ -317,7 +317,11 @@ MonoBehaviour:
   m_text: 'W, A, S, D - Camera movement
 
 
-    Q, E - Camera Rotation'
+    Q, E - Camera Rotation
+
+
+    Alt -
+    Switch Stats'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -532,7 +536,7 @@ GameObject:
   - component: {fileID: 375171020}
   - component: {fileID: 375171019}
   m_Layer: 5
-  m_Name: Melee Attack Button
+  m_Name: Attack Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -570,6 +574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 375171020}
+  input: Attack Action
   action: 1
 --- !u!114 &375171020
 MonoBehaviour:
@@ -843,7 +848,7 @@ GameObject:
   - component: {fileID: 538021106}
   - component: {fileID: 538021105}
   m_Layer: 5
-  m_Name: Defence Button
+  m_Name: Defend Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -881,6 +886,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 538021106}
+  input: Defend Action
   action: 2
 --- !u!114 &538021106
 MonoBehaviour:
@@ -1572,6 +1578,12 @@ MonoBehaviour:
   rotationSpeed: 7.5
   posMin: 0
   posMax: 20
+  allLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  defaultLayers:
+    serializedVersion: 2
+    m_Bits: 55
 --- !u!4 &929284954
 Transform:
   m_ObjectHideFlags: 0
@@ -2335,6 +2347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   button: {fileID: 1732795363}
+  input: Move Action
   action: 0
 --- !u!114 &1732795363
 MonoBehaviour:
