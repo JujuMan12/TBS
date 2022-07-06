@@ -288,6 +288,11 @@ public class TileMap : MonoBehaviour
             {
                 HighlightNeighbourTiles(unitTile, selectedUnit.attackRange, TileComponent.ColorState.enemy);
             }
+            else
+            {
+                highlightedTiles.Add(unitTile);
+                unitTile.tileComponent.colorState = TileComponent.ColorState.available;
+            }
         }
     }
 

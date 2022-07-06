@@ -131,13 +131,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentPathId: 0
   healthPoints: 0
+  armorPoints: 0
   actionPoints: 0
   inDefenceStance: 0
   maxHealthPoints: 5
+  maxArmorPoints: 0
   maxActionPoints: 4
   minProtection: 0
   maxProtection: 1
   healthPointsText: {fileID: 1640106223930406066}
+  armorPointsText: {fileID: 8300546724051824850}
   actionPointsText: {fileID: 3374173428247952293}
   attackRange: 1
   attackCost: 2
@@ -983,6 +986,17 @@ Transform:
 --- !u!114 &1640106223930406066 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9137957084772124599, guid: 9a952ab96ed4bba4ca258dc9e22bffc0, type: 3}
+  m_PrefabInstance: {fileID: 7499153526746788613}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8300546724051824850 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1955458486510289879, guid: 9a952ab96ed4bba4ca258dc9e22bffc0, type: 3}
   m_PrefabInstance: {fileID: 7499153526746788613}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}

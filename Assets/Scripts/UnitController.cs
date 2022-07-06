@@ -12,6 +12,7 @@ public class UnitController : MonoBehaviour
     [HideInInspector] private Vector3 targetPosition;
     [HideInInspector] private Quaternion targetRotation;
     [HideInInspector] public int healthPoints;
+    [HideInInspector] public int armorPoints;
     [HideInInspector] public int actionPoints;
     [HideInInspector] public bool inDefenceStance;
     [HideInInspector] public enum AnimationState { idle, moving, death };
@@ -19,20 +20,22 @@ public class UnitController : MonoBehaviour
 
     [Header("Characteristics")]
     [SerializeField] public int maxHealthPoints = 1;
+    [SerializeField] public int maxArmorPoints = 1;
     [SerializeField] public int maxActionPoints = 4;
-    [SerializeField] private int minProtection;
-    [SerializeField] private int maxProtection;
+    [SerializeField] private int minProtection = 0;
+    [SerializeField] private int maxProtection = 1;
     [SerializeField] private TextMeshPro healthPointsText;
+    [SerializeField] private TextMeshPro armorPointsText;
     [SerializeField] private TextMeshPro actionPointsText;
 
     [Header("Ability - Attack")]
     [SerializeField] public int attackRange = 1;
     [SerializeField] public int attackCost = 2;
-    [SerializeField] private int minDamage;
+    [SerializeField] private int minDamage = 0;
     [SerializeField] private int maxDamage = 1;
 
     [Header("Ability - Defence")]
-    [SerializeField] private int defenceMinBonus;
+    [SerializeField] private int defenceMinBonus = 0;
     [SerializeField] private int defenceMaxBonus = 1;
 
     [Header("Movement")]
@@ -48,7 +51,9 @@ public class UnitController : MonoBehaviour
         targetRotation = transform.rotation;
 
         healthPoints = maxHealthPoints;
+        armorPoints = maxArmorPoints;
         actionPoints = maxActionPoints;
+        UpdateText();
 
         animator = gameObject.GetComponent<Animator>();
     }
@@ -61,8 +66,6 @@ public class UnitController : MonoBehaviour
 
     private void Update()
     {
-        UpdateText();
-
         if (currentPath != null)
         {
             HandleMovement();
@@ -78,6 +81,16 @@ public class UnitController : MonoBehaviour
     {
         healthPointsText.text = healthPoints.ToString();
         actionPointsText.text = actionPoints.ToString();
+
+        if (armorPoints > 0)
+        {
+            armorPointsText.enabled = true;
+            armorPointsText.text = "+" + armorPoints.ToString();
+        }
+        else
+        {
+            armorPointsText.enabled = false;
+        }
     }
 
     private void HandleMovement()
@@ -95,6 +108,7 @@ public class UnitController : MonoBehaviour
             if (currentPathId != currentPath.Count - 1 && currentPath[currentPathId + 1].unit == null && actionPoints > 0)
             {
                 actionPoints--;
+                UpdateText();
                 currentPathId++;
                 unitData.SetTile(currentPath[currentPathId]);
                 targetPosition = new Vector3(unitData.tile.posX, unitData.tile.height, unitData.tile.posZ);
@@ -210,6 +224,7 @@ public class UnitController : MonoBehaviour
         animator.SetTrigger("attack");
 
         actionPoints -= attackCost;
+        UpdateText();
         int damage = Random.Range(minDamage, maxDamage);
         int protection = Random.Range(target.minProtection, target.maxProtection);
 
@@ -228,7 +243,8 @@ public class UnitController : MonoBehaviour
 
     virtual public void TakeDamage(int damage)
     {
-        healthPoints -= damage;
+        healthPoints -= damage - armorPoints;
+        UpdateText();
 
         if (healthPoints <= 0)
         {
