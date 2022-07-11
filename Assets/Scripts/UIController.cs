@@ -17,9 +17,9 @@ public class UIController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("Cancel")) //TODO: rework
+        if (Input.GetButtonDown("Cancel") && tileMap.selectedUnit == null)
         {
-            Application.Quit();
+            Application.Quit(); //TODO: rework
         }
     }
 

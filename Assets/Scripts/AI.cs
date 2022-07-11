@@ -37,7 +37,8 @@ public class AI : MonoBehaviour
             {
                 if (!enemyUnits.Exists(unit => unit.unitController.actionPoints > 0))
                 {
-                    EndTurn();
+                    isActivated = false;
+                    tileMap.ResetPlayerTurn();
                 }
                 else
                 {
@@ -51,7 +52,7 @@ public class AI : MonoBehaviour
             }
             else
             {
-                EndTurn();
+                tileMap.ResetPlayerTurn();
                 return;
             }
         }
@@ -161,17 +162,6 @@ public class AI : MonoBehaviour
         else
         {
             tileMap.GeneratePathTo(target.tile.posX, target.tile.posZ, unit.unitController, true);
-        }
-    }
-
-    private void EndTurn()
-    {
-        tileMap.isPlayerTurn = true;
-        isActivated = false;
-
-        foreach (Unit unit in tileMap.units)
-        {
-            unit.unitController.actionPoints = unit.unitController.maxActionPoints;
         }
     }
 }

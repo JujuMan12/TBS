@@ -518,17 +518,19 @@ MonoBehaviour:
   maxHealthPoints: 3
   maxArmorPoints: 1
   maxActionPoints: 4
-  minProtection: 0
-  maxProtection: 2
+  evasion: 0.1
   healthPointsText: {fileID: 4905114727493003713}
   armorPointsText: {fileID: 2441464970414828961}
   actionPointsText: {fileID: 8936228991480719062}
   attackRange: 1
   attackCost: 2
+  aim: 0.75
   minDamage: 1
   maxDamage: 3
-  defenceMinBonus: 1
-  defenceMaxBonus: 2
+  defencePossible: 1
+  defenceCost: 3
+  defenceBonusMin: 1
+  defenceBonusMax: 2
   movementSpeed: 10
   tileMovementSpeed: 0.1
   rotationSpeed: 500

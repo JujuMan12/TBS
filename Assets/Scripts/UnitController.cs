@@ -15,15 +15,14 @@ public class UnitController : MonoBehaviour
     [HideInInspector] public int armorPoints;
     [HideInInspector] public int actionPoints;
     [HideInInspector] public bool inDefenceStance;
-    [HideInInspector] public enum AnimationState { idle, moving, death };
+    [HideInInspector] public enum AnimationState { idle, moving, defense, death };
     [HideInInspector] private Animator animator;
 
     [Header("Characteristics")]
     [SerializeField] public int maxHealthPoints = 1;
     [SerializeField] public int maxArmorPoints = 1;
     [SerializeField] public int maxActionPoints = 4;
-    [SerializeField] private int minProtection = 0;
-    [SerializeField] private int maxProtection = 1;
+    [SerializeField] private float evasion = 0.1f;
     [SerializeField] private TextMeshPro healthPointsText;
     [SerializeField] private TextMeshPro armorPointsText;
     [SerializeField] private TextMeshPro actionPointsText;
@@ -31,12 +30,15 @@ public class UnitController : MonoBehaviour
     [Header("Ability - Attack")]
     [SerializeField] public int attackRange = 1;
     [SerializeField] public int attackCost = 2;
+    [SerializeField] public float aim = 0.75f;
     [SerializeField] private int minDamage = 0;
     [SerializeField] private int maxDamage = 1;
 
     [Header("Ability - Defence")]
-    [SerializeField] private int defenceMinBonus = 0;
-    [SerializeField] private int defenceMaxBonus = 1;
+    [SerializeField] private bool defencePossible;
+    [SerializeField] public int defenceCost = 3;
+    [SerializeField] private int defenceBonusMin = 0;
+    [SerializeField] private int defenceBonusMax = 1;
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
@@ -185,7 +187,7 @@ public class UnitController : MonoBehaviour
             {
                 tileMap.SelectUnit(this);
             }
-            else if (tileMap.actionState == TileMap.ActionStates.defence)
+            else if (tileMap.actionState == TileMap.ActionStates.defence && actionPoints >= defenceCost)
             {
                 SetDefenceStance();
             }
@@ -225,17 +227,11 @@ public class UnitController : MonoBehaviour
 
         actionPoints -= attackCost;
         UpdateText();
+
         int damage = Random.Range(minDamage, maxDamage);
-        int protection = Random.Range(target.minProtection, target.maxProtection);
+        float hitChance = aim - target.evasion;
 
-        if (target.inDefenceStance)
-        {
-            protection += Random.Range(target.defenceMinBonus, target.defenceMaxBonus);
-        }
-
-        damage -= protection;
-
-        if (damage > 0)
+        if (hitChance > Random.Range(0f, 0.99f))
         {
             target.TakeDamage(damage);
         }
@@ -243,7 +239,9 @@ public class UnitController : MonoBehaviour
 
     virtual public void TakeDamage(int damage)
     {
-        healthPoints -= damage - armorPoints;
+        int defencePoints = inDefenceStance ? Random.Range(defenceBonusMin, defenceBonusMax) : 0;
+
+        healthPoints -= damage - armorPoints - defencePoints;
         UpdateText();
 
         if (healthPoints <= 0)
@@ -258,7 +256,20 @@ public class UnitController : MonoBehaviour
 
     public void SetDefenceStance()
     {
-        print("defence");
+        inDefenceStance = true;
+        actionPoints = 0;
+        UpdateText();
+
+        animator.SetInteger("state", (int)AnimationState.defense);
+    }
+
+    public void ResetActionPoints()
+    {
+        actionPoints = maxActionPoints;
+        inDefenceStance = false;
+        UpdateText();
+
+        animator.SetInteger("state", (int)AnimationState.idle);
     }
 
     private void Die()

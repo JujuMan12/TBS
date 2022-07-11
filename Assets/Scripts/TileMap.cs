@@ -40,6 +40,14 @@ public class TileMap : MonoBehaviour
         GenerateUnitsVisual();
     }
 
+    private void Update()
+    {
+        if (Input.GetButtonDown("Cancel") && selectedUnit != null)
+        {
+            UnselectUnit();
+        }
+    }
+
     private void FixedUpdate()
     {
         if (!units.Exists(unit => unit.isPlayerOwned) || !units.Exists(unit => !unit.isPlayerOwned)) //TODO: rework
@@ -302,7 +310,7 @@ public class TileMap : MonoBehaviour
         {
             foreach (Tile neighbour in currentTile.neighbours)
             {
-                if (!highlightedTiles.Contains(neighbour) && neighbour.unit == null)
+                if ( neighbour.unit == null)
                 {
                     highlightedTiles.Add(neighbour);
                     neighbour.tileComponent.colorState = colorState;
@@ -325,9 +333,31 @@ public class TileMap : MonoBehaviour
         }
     }
 
+    private void UnselectUnit()
+    {
+        ClearHighlightedTiles();
+
+        if (selectedUnit.currentPath == null)
+        {
+            selectedUnit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.ally;
+        }
+
+        selectedUnit = null;
+    }
+
     public void SetActionState(ActionStates newState)
     {
         actionState = newState;
         HighlightSelectedUnit();
+    }
+
+    public void ResetPlayerTurn()
+    {
+        isPlayerTurn = true;
+
+        foreach (Unit unit in units)
+        {
+            unit.unitController.ResetActionPoints();
+        }
     }
 }
