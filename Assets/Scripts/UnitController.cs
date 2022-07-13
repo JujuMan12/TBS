@@ -19,10 +19,11 @@ public class UnitController : MonoBehaviour
     [HideInInspector] private Animator animator;
 
     [Header("Characteristics")]
+    [SerializeField] public string unitName;
     [SerializeField] public int maxHealthPoints = 1;
     [SerializeField] public int maxArmorPoints = 1;
     [SerializeField] public int maxActionPoints = 4;
-    [SerializeField] private float evasion = 0.1f;
+    [SerializeField] public float dodge = 0.1f;
     [SerializeField] private TextMeshPro healthPointsText;
     [SerializeField] private TextMeshPro armorPointsText;
     [SerializeField] private TextMeshPro actionPointsText;
@@ -31,14 +32,14 @@ public class UnitController : MonoBehaviour
     [SerializeField] public int attackRange = 1;
     [SerializeField] public int attackCost = 2;
     [SerializeField] public float aim = 0.75f;
-    [SerializeField] private int minDamage = 0;
-    [SerializeField] private int maxDamage = 1;
+    [SerializeField] public int minDamage = 0;
+    [SerializeField] public int maxDamage = 1;
 
     [Header("Ability - Defence")]
     [SerializeField] private bool defencePossible;
     [SerializeField] public int defenceCost = 3;
-    [SerializeField] private int defenceBonusMin = 0;
-    [SerializeField] private int defenceBonusMax = 1;
+    [SerializeField] public int defenceBonusMin = 0;
+    [SerializeField] public int defenceBonusMax = 1;
 
     [Header("Movement")]
     [SerializeField] private float movementSpeed = 10f;
@@ -229,7 +230,7 @@ public class UnitController : MonoBehaviour
         UpdateText();
 
         int damage = Random.Range(minDamage, maxDamage);
-        float hitChance = aim - target.evasion;
+        float hitChance = aim - target.dodge;
 
         if (hitChance > Random.Range(0f, 0.99f))
         {

@@ -4,34 +4,38 @@ using UnityEngine;
 
 public class UIController : MonoBehaviour
 {
-    [HideInInspector] private TileMap tileMap;
+    [Header("Map")]
+    [SerializeField] private TileMap tileMap;
 
-    [Header("Elements")]
-    //[SerializeField] private GameObject nextTurnButton;
+    [Header("UI Elements")]
     [SerializeField] private GameObject actionButtons;
+    [SerializeField] private GameObject unitInfoWindow;
 
     private void Start()
     {
-        tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
     }
 
     private void Update()
     {
         if (Input.GetButtonDown("Cancel") && tileMap.selectedUnit == null)
         {
-            Application.Quit(); //TODO: rework
+            Application.Quit(); //TODO: make main menu
         }
     }
 
     private void FixedUpdate()
     {
-        if (tileMap.selectedUnit != null && tileMap.selectedUnit.currentPath == null)
+        bool selectedUnitIsAvailable = tileMap.selectedUnit != null && tileMap.selectedUnit.currentPath == null;
+
+        if (selectedUnitIsAvailable && !actionButtons.activeSelf)
         {
             actionButtons.SetActive(true);
+            unitInfoWindow.SetActive(true);
         }
-        else
+        else if (!selectedUnitIsAvailable && actionButtons.activeSelf)
         {
             actionButtons.SetActive(false);
+            unitInfoWindow.SetActive(false);
         }
     }
 }

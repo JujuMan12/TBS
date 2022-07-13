@@ -134,10 +134,11 @@ MonoBehaviour:
   armorPoints: 0
   actionPoints: 0
   inDefenceStance: 0
+  unitName: Ork
   maxHealthPoints: 5
   maxArmorPoints: 0
   maxActionPoints: 4
-  evasion: 0.1
+  dodge: 0.1
   healthPointsText: {fileID: 1640106223930406066}
   armorPointsText: {fileID: 8300546724051824850}
   actionPointsText: {fileID: 3374173428247952293}

@@ -515,10 +515,11 @@ MonoBehaviour:
   armorPoints: 0
   actionPoints: 0
   inDefenceStance: 0
+  unitName: Spearman
   maxHealthPoints: 3
   maxArmorPoints: 1
   maxActionPoints: 4
-  evasion: 0.1
+  dodge: 0.1
   healthPointsText: {fileID: 4905114727493003713}
   armorPointsText: {fileID: 2441464970414828961}
   actionPointsText: {fileID: 8936228991480719062}
