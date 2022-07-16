@@ -5,23 +5,19 @@ using UnityEngine.UI;
 
 public class ActionButtons : MonoBehaviour
 {
-    [HideInInspector] private TileMap tileMap;
+    [Header("Map")]
+    [SerializeField] private TileMap tileMap;
 
     [Header("Controls")]
     [SerializeField] private Button button;
     [SerializeField] private string input;
 
     [Header("Action")]
-    [SerializeField] private TileMap.ActionStates action;
-
-    private void Start()
-    {
-        tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
-    }
+    [SerializeField] private TileMap.ActionState action;
 
     private void Update()
     {
-        if (Input.GetButtonDown(input))
+        if (Input.GetButtonDown(input) && button.interactable == true)
         {
             SelectThisAction();
         }

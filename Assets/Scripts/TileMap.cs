@@ -5,8 +5,8 @@ using UnityEngine;
 public class TileMap : MonoBehaviour
 {
     [HideInInspector] public UnitController selectedUnit;
-    [HideInInspector] public enum ActionStates { movement, attack, defence }
-    [HideInInspector] public ActionStates actionState = ActionStates.movement;
+    [HideInInspector] public enum ActionState { movement, attack, defence }
+    [HideInInspector] public ActionState actionState;
     [HideInInspector] public List<Tile> highlightedTiles;
     [HideInInspector] public Tile[,] tiles;
     [HideInInspector] public List<Unit> units;
@@ -42,7 +42,8 @@ public class TileMap : MonoBehaviour
     {
         if (Input.GetButtonDown("Cancel") && selectedUnit != null)
         {
-            UnselectUnit();
+            selectedUnit = null;
+            ClearHighlightedTiles();
         }
     }
 
@@ -270,7 +271,18 @@ public class TileMap : MonoBehaviour
     {
         foreach (Tile tile in highlightedTiles)
         {
-            tile.tileComponent.colorState = TileComponent.ColorState.none;
+            if (tile.unit == null)
+            {
+                tile.tileComponent.colorState = TileComponent.ColorState.none;
+            }
+            else if (tile.unit.isPlayerOwned)
+            {
+                tile.tileComponent.colorState = TileComponent.ColorState.ally;
+            }
+            else
+            {
+                tile.tileComponent.colorState = TileComponent.ColorState.enemy;
+            }
         }
 
         highlightedTiles.Clear();
@@ -278,33 +290,35 @@ public class TileMap : MonoBehaviour
 
     public void HighlightSelectedUnit()
     {
-        if (selectedUnit != null && selectedUnit.currentPath == null)
+        if (selectedUnit == null || selectedUnit.currentPath != null)
         {
-            ClearHighlightedTiles();
-            Tile unitTile = selectedUnit.unitData.tile;
+            return;
+        }
 
-            highlightedTiles.Add(unitTile);
-            if (actionState == ActionStates.defence)
-            {
-                unitTile.tileComponent.colorState = TileComponent.ColorState.available;
-            }
-            else
-            {
-                unitTile.tileComponent.colorState = TileComponent.ColorState.selected;
-            }
+        ClearHighlightedTiles();
+        Tile unitTile = selectedUnit.unitData.tile;
 
-            if (actionState == ActionStates.movement)
-            {
-                HighlightTilesInRange(unitTile, unitTile, selectedUnit.actionPoints, TileComponent.ColorState.available);
-            }
-            else if (actionState == ActionStates.attack)
-            {
-                HighlightTilesInRange(unitTile, unitTile, selectedUnit.attackRange, TileComponent.ColorState.enemy);
-            }
+        highlightedTiles.Add(unitTile);
+        if (actionState == ActionState.defence && selectedUnit.actionPoints >= selectedUnit.defenceCost)
+        {
+            unitTile.tileComponent.colorState = TileComponent.ColorState.available;
+        }
+        else
+        {
+            unitTile.tileComponent.colorState = TileComponent.ColorState.selected;
+        }
+
+        if (actionState == ActionState.movement)
+        {
+            HighlightTilesInRange(unitTile, unitTile, selectedUnit.actionPoints, false, TileComponent.ColorState.available);
+        }
+        else if (actionState == ActionState.attack && selectedUnit.actionPoints >= selectedUnit.attackCost)
+        {
+            HighlightTilesInRange(unitTile, unitTile, selectedUnit.attackRange, true, TileComponent.ColorState.range);
         }
     }
 
-    private void HighlightTilesInRange(Tile unitTile, Tile currentTile, int range, TileComponent.ColorState colorState)
+    private void HighlightTilesInRange(Tile unitTile, Tile currentTile, int range, bool ignoreUnits, TileComponent.ColorState colorState)
     {
         if (range == 0)
         {
@@ -315,44 +329,30 @@ public class TileMap : MonoBehaviour
         {
             bool isCloserToUnit = unitTile.DistanceTo(neighbour) < unitTile.DistanceTo(currentTile);
 
-            if (!highlightedTiles.Contains(neighbour) && neighbour.unit == null && !isCloserToUnit)
+            if (!highlightedTiles.Contains(neighbour) && !isCloserToUnit && (neighbour.unit == null || ignoreUnits))
             {
                 highlightedTiles.Add(neighbour);
                 neighbour.tileComponent.colorState = colorState;
-                HighlightTilesInRange(unitTile, neighbour, range - 1, colorState);
+                HighlightTilesInRange(unitTile, neighbour, range - 1, ignoreUnits, colorState);
             }
         }
     }
 
     public void SelectUnit(UnitController unit)
     {
-        UnitController prevSelectedUnit = selectedUnit;
-
         selectedUnit = unit;
-        SetActionState(ActionStates.movement);
-
-        if (prevSelectedUnit != null && prevSelectedUnit.currentPath == null)
-        {
-            prevSelectedUnit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.ally;
-        }
+        SetActionState(ActionState.movement);
     }
 
-    private void UnselectUnit()
-    {
-        ClearHighlightedTiles();
-
-        if (selectedUnit.currentPath == null)
-        {
-            selectedUnit.unitData.tile.tileComponent.colorState = TileComponent.ColorState.ally;
-        }
-
-        selectedUnit = null;
-    }
-
-    public void SetActionState(ActionStates newState)
+    public void SetActionState(ActionState newState)
     {
         actionState = newState;
         HighlightSelectedUnit();
+    }
+
+    public bool PlayerCanOrder()
+    {
+        return isPlayerTurn && (bool)selectedUnit?.unitData.isPlayerOwned;
     }
 
     public void ResetPlayerTurn()

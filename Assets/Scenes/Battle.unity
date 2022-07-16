@@ -769,6 +769,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fba4687b64a64244b2cb78677489e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileMap: {fileID: 819794376}
   button: {fileID: 375171020}
   input: Attack Action
   action: 1
@@ -1081,6 +1082,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fba4687b64a64244b2cb78677489e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileMap: {fileID: 819794376}
   button: {fileID: 538021106}
   input: Defend Action
   action: 2
@@ -1646,7 +1648,7 @@ MonoBehaviour:
   - {x: 18, y: 13}
   - {x: 18, y: 3}
   unitPrefab: {fileID: 928723031, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}
-  enemyPrefab: {fileID: 388476414, guid: 7df524699deb44341b3693c8538df185, type: 3}
+  enemyPrefab: {fileID: 1839304754744059133, guid: cc2904f8420d54e45b80616562ff859c, type: 3}
   unitFolder: {fileID: 1341488122}
   playerUnitNumber: 10
   enemyUnitNumber: 8
@@ -2508,7 +2510,7 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 200, y: 75}
+  m_CellSize: {x: 300, y: 80}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 1
@@ -3151,6 +3153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fba4687b64a64244b2cb78677489e9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileMap: {fileID: 819794376}
   button: {fileID: 1732795363}
   input: Move Action
   action: 0
@@ -3637,6 +3640,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebb31cb2f0b64bd4e89ea0a07aed80ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileMap: {fileID: 819794376}
   button: {fileID: 1845649988}
   label: {fileID: 919728541}
   waitLabel: Please, Wait your Turn...

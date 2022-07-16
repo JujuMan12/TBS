@@ -5,10 +5,10 @@ using TMPro;
 
 public class UnitController : MonoBehaviour
 {
+    [HideInInspector] protected TileMap tileMap;
     [HideInInspector] public Unit unitData;
     [HideInInspector] public List<Tile> currentPath;
     [HideInInspector] public int currentPathId;
-    [HideInInspector] protected TileMap tileMap;
     [HideInInspector] private Vector3 targetPosition;
     [HideInInspector] private Quaternion targetRotation;
     [HideInInspector] public int healthPoints;
@@ -16,7 +16,6 @@ public class UnitController : MonoBehaviour
     [HideInInspector] public int actionPoints;
     [HideInInspector] public bool inDefenceStance;
     [HideInInspector] public enum AnimationState { idle, moving, defense, death };
-    [HideInInspector] private Animator animator;
 
     [Header("Characteristics")]
     [SerializeField] public string unitName;
@@ -41,7 +40,8 @@ public class UnitController : MonoBehaviour
     [SerializeField] public int defenceBonusMin = 0;
     [SerializeField] public int defenceBonusMax = 1;
 
-    [Header("Movement")]
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
     [SerializeField] private float movementSpeed = 10f;
     [SerializeField] private float tileMovementSpeed = 0.1f;
     [SerializeField] private float rotationSpeed = 500f;
@@ -57,8 +57,6 @@ public class UnitController : MonoBehaviour
         armorPoints = maxArmorPoints;
         actionPoints = maxActionPoints;
         UpdateText();
-
-        animator = gameObject.GetComponent<Animator>();
     }
 
     public void SetUnitData(Unit unit)
@@ -180,54 +178,39 @@ public class UnitController : MonoBehaviour
         }
     }
 
-    virtual public void OnMouseUp()
+    public void OnMouseOver()
     {
-        if (tileMap.isPlayerTurn)
+        if (Input.GetButtonDown("Select Unit") && tileMap.selectedUnit != this)
         {
-            if (tileMap.selectedUnit != this)
-            {
-                tileMap.SelectUnit(this);
-            }
-            else if (tileMap.actionState == TileMap.ActionStates.defence && actionPoints >= defenceCost)
-            {
-                SetDefenceStance();
-            }
+            tileMap.SelectUnit(this);
         }
+        else if (Input.GetButtonDown("Order Unit") && tileMap.PlayerCanOrder())
+        {
+            ApplyAction();
+        }
+    }
+
+    virtual public void ApplyAction()
+    {
+        //TODO: wrong sound
+        print("wrong");
+    }
+
+    public bool CanAttack(UnitController target)
+    {
+        return unitData.tile.DistanceTo(target.unitData.tile) <= attackRange && actionPoints >= attackCost;
     }
 
     public void AttackTarget(UnitController target)
     {
-        if (!unitData.tile.neighbours.Contains(target.unitData.tile)) //TODO: range
-        {
-            return;
-        }
-
-        Vector3 targetPosition = target.transform.position;
-        float angle;
-        if (targetPosition.x > transform.position.x) //TODO: rework
-        {
-            angle = 90f;
-        }
-        else if (targetPosition.x < transform.position.x)
-        {
-            angle = -90f;
-        }
-        else if (targetPosition.z > transform.position.z)
-        {
-            angle = 0f;
-        }
-        else
-        {
-            angle = 180f;
-        }
-
-        targetRotation = Quaternion.Euler(new Vector3(0f, angle, 0f));
-        target.targetRotation = Quaternion.Euler(new Vector3(0f, angle - 180f, 0f));
+        targetRotation = Quaternion.LookRotation(target.transform.position - transform.position, Vector3.up);
+        target.targetRotation = Quaternion.LookRotation(transform.position - target.transform.position, Vector3.up);
 
         animator.SetTrigger("attack");
 
         actionPoints -= attackCost;
         UpdateText();
+        tileMap.HighlightSelectedUnit();
 
         int damage = Random.Range(minDamage, maxDamage);
         float hitChance = aim - target.dodge;
@@ -238,7 +221,7 @@ public class UnitController : MonoBehaviour
         }
     }
 
-    virtual public void TakeDamage(int damage)
+    private void TakeDamage(int damage)
     {
         int defencePoints = inDefenceStance ? Random.Range(defenceBonusMin, defenceBonusMax) : 0;
 
@@ -275,7 +258,6 @@ public class UnitController : MonoBehaviour
 
     private void Die()
     {
-        UpdateText();
         animator.SetInteger("state", (int)AnimationState.death);
         unitData.tile.tileComponent.colorState = TileComponent.ColorState.none;
 
@@ -283,5 +265,6 @@ public class UnitController : MonoBehaviour
         unitData.tile.unit = null;
         tileMap.units.Remove(unitData);
         this.enabled = false;
+        tileMap.HighlightSelectedUnit();
     }
 }

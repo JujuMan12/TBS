@@ -5,8 +5,10 @@ using UnityEngine.UI;
 
 public class NextTurnButton : MonoBehaviour
 {
-    [HideInInspector] private TileMap tileMap;
     [HideInInspector] private string defaultLabel;
+
+    [Header("Map")]
+    [SerializeField] private TileMap tileMap;
 
     [Header("Button")]
     [SerializeField] private Button button;
@@ -17,13 +19,20 @@ public class NextTurnButton : MonoBehaviour
 
     private void Start()
     {
-        tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
         defaultLabel = label.text;
+    }
+
+    private void Update()
+    {
+        if (Input.GetButtonDown("Skip Turn"))
+        {
+            SkipTurn();
+        }
     }
 
     private void FixedUpdate()
     {
-        if (tileMap.isPlayerTurn && !button.interactable)
+        if (!button.interactable && tileMap.isPlayerTurn)
         {
             button.interactable = true;
             label.text = defaultLabel;
