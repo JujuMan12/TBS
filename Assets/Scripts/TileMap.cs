@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class TileMap : MonoBehaviour
 {
+    [HideInInspector] static public int[] unitCount;
     [HideInInspector] public UnitController selectedUnit;
+    [HideInInspector] public enum UnitType { spearman, ork, wizard, lich }
     [HideInInspector] public enum ActionState { movement, attack, defence }
     [HideInInspector] public ActionState actionState;
     [HideInInspector] public List<Tile> highlightedTiles;
@@ -20,8 +22,8 @@ public class TileMap : MonoBehaviour
     [SerializeField] private Vector2[] impassableTiles;
 
     [Header("Units")]
-    [SerializeField] private GameObject unitPrefab;
-    [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private GameObject[] unitPrefabs;
+    [SerializeField] private bool[] unitsFaction;
     [SerializeField] private Transform unitFolder;
     [SerializeField] private int playerUnitNumber = 10;
     [SerializeField] private int enemyUnitNumber = 10;
@@ -120,33 +122,22 @@ public class TileMap : MonoBehaviour
     private void GenerateUnitsData()
     {
         units = new List<Unit>();
-
-        for (int i = 0; i < playerUnitNumber; i++)
+        for (int unitType = 0; unitType < unitCount.Length; unitType++)
         {
-            while (true)
+            bool isPlayerOwned = unitsFaction[unitType];
+
+            for (int i = 0; i < unitCount[unitType]; i++)
             {
-                int randomX = Random.Range(0, mapSizeX);
-                int randomZ = Random.Range(0, unitSpawnZMax);
-
-                if (tiles[randomX, randomZ].unit == null && tiles[randomX, randomZ].passable)
+                while (true)
                 {
-                    units.Add(new Unit(tiles[randomX, randomZ], true));
-                    break;
-                }
-            }
-        }
+                    int randomX = Random.Range(0, mapSizeX);
+                    int randomZ = isPlayerOwned ? Random.Range(0, unitSpawnZMax) : Random.Range(mapSizeZ - unitSpawnZMax, mapSizeZ);
 
-        for (int i = 0; i < enemyUnitNumber; i++)
-        {
-            while (true)
-            {
-                int randomX = Random.Range(0, mapSizeX);
-                int randomZ = Random.Range(mapSizeZ - unitSpawnZMax, mapSizeZ);
-
-                if (tiles[randomX, randomZ].unit == null && tiles[randomX, randomZ].passable)
-                {
-                    units.Add(new Unit(tiles[randomX, randomZ], false));
-                    break;
+                    if (tiles[randomX, randomZ].unit == null && tiles[randomX, randomZ].passable)
+                    {
+                        units.Add(new Unit(tiles[randomX, randomZ], isPlayerOwned, unitType));
+                        break;
+                    }
                 }
             }
         }
@@ -156,19 +147,17 @@ public class TileMap : MonoBehaviour
     {
         foreach (Unit unit in units)
         {
-            GameObject prefab;
+            GameObject prefab = unitPrefabs[unit.unitType];
             Quaternion rotation;
             TileComponent.ColorState colorState;
 
             if (unit.isPlayerOwned)
             {
-                prefab = unitPrefab;
                 rotation = Quaternion.Euler(0f, 0f, 0f);
                 colorState = TileComponent.ColorState.ally;
             }
             else
             {
-                prefab = enemyPrefab;
                 rotation = Quaternion.Euler(0f, 180f, 0f);
                 colorState = TileComponent.ColorState.enemy;
             }

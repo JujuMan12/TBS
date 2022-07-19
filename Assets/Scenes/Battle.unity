@@ -1647,8 +1647,12 @@ MonoBehaviour:
   - {x: 18, y: 8}
   - {x: 18, y: 13}
   - {x: 18, y: 3}
-  unitPrefab: {fileID: 928723031, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}
-  enemyPrefab: {fileID: 1839304754744059133, guid: cc2904f8420d54e45b80616562ff859c, type: 3}
+  unitPrefabs:
+  - {fileID: 928723031, guid: 44e54165d41e34c41ba73a629630ce03, type: 3}
+  - {fileID: 388476414, guid: 7df524699deb44341b3693c8538df185, type: 3}
+  - {fileID: 1248815240492774, guid: ccd8c3b89aa02e943a08ab9238a8a70c, type: 3}
+  - {fileID: 1839304754744059133, guid: cc2904f8420d54e45b80616562ff859c, type: 3}
+  unitsFaction: 01000100
   unitFolder: {fileID: 1341488122}
   playerUnitNumber: 10
   enemyUnitNumber: 8
@@ -1666,6 +1670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47963dec3ad96314f9cf7de2ec454c73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileMap: {fileID: 819794376}
   turnCooldown: 1
   tempTimeout: 3
 --- !u!1 &919728539

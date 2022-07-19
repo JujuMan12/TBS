@@ -11,6 +11,7 @@ public class UnitController : MonoBehaviour
     [HideInInspector] public int currentPathId;
     [HideInInspector] private Vector3 targetPosition;
     [HideInInspector] private Quaternion targetRotation;
+    [HideInInspector] private GameObject targetToHit;
     [HideInInspector] public int healthPoints;
     [HideInInspector] public int armorPoints;
     [HideInInspector] public int actionPoints;
@@ -33,6 +34,8 @@ public class UnitController : MonoBehaviour
     [SerializeField] public float aim = 0.75f;
     [SerializeField] public int minDamage = 0;
     [SerializeField] public int maxDamage = 1;
+    [SerializeField] private GameObject projectile;
+    [SerializeField] private Transform projectileStartPoint;
 
     [Header("Ability - Defence")]
     [SerializeField] private bool defencePossible;
@@ -217,8 +220,26 @@ public class UnitController : MonoBehaviour
 
         if (hitChance > Random.Range(0f, 0.99f))
         {
+            targetToHit = target.gameObject;
             target.TakeDamage(damage);
         }
+        else
+        {
+            targetToHit = null;
+        }
+    }
+
+    public void ShootProjectile()
+    {
+        Quaternion direction = transform.rotation;
+
+        if (targetToHit == null)
+        {
+            direction *= Quaternion.Euler(Random.Range(0f, 5f), Random.Range(0f, 5f), Random.Range(0f, 5f));
+        }
+
+        GameObject projectileGO = Instantiate(projectile, projectileStartPoint.position, direction);
+        projectileGO.GetComponent<ProjectileController>().SetTarget(targetToHit);
     }
 
     private void TakeDamage(int damage)

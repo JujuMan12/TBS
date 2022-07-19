@@ -178,6 +178,7 @@ GameObject:
   - component: {fileID: 3478025250975259355}
   - component: {fileID: 8735932539965035658}
   - component: {fileID: 4862908865188871936}
+  - component: {fileID: 5124286137003697603}
   m_Layer: 0
   m_Name: Lich
   m_TagString: EnemyUnit
@@ -251,6 +252,8 @@ MonoBehaviour:
   aim: 0.75
   minDamage: 0
   maxDamage: 1
+  projectile: {fileID: 354974892894246826, guid: 34cc78abe1d8e3c4c9ce3bac618c5091, type: 3}
+  projectileStartPoint: {fileID: 6374899981825673444}
   defencePossible: 0
   defenceCost: 3
   defenceBonusMin: 0
@@ -259,6 +262,20 @@ MonoBehaviour:
   movementSpeed: 10
   tileMovementSpeed: 0.1
   rotationSpeed: 500
+--- !u!136 &5124286137003697603
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839304754744059133}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2.25
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.75, z: 0.1}
 --- !u!1 &1860493697606966921
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,7 +704,8 @@ Transform:
   m_LocalRotation: {x: -0.043163035, y: -0.039431553, z: 0.6787936, w: 0.7319982}
   m_LocalPosition: {x: -50.983036, y: -54.37775, z: -77.06237}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 6374899981825673444}
   m_Father: {fileID: 3323879814962616926}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -719,6 +737,36 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6583196915971837147}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7079234188545270990
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6374899981825673444}
+  m_Layer: 0
+  m_Name: Projectile Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6374899981825673444
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7079234188545270990}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 210, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2987795399302067839}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7318251424050971323

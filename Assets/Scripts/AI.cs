@@ -4,21 +4,18 @@ using UnityEngine;
 
 public class AI : MonoBehaviour
 {
-    [HideInInspector] private TileMap tileMap;
     [HideInInspector] private List<Unit> playerUnits;
-    [HideInInspector] private List<Unit> enemyUnits;
+    [HideInInspector] private List<Unit> aiUnits;
     [HideInInspector] private bool isActivated;
     [HideInInspector] private float cooldownTime;
     [HideInInspector] private float timeoutTime;
 
+    [Header("Map")]
+    [SerializeField] private TileMap tileMap;
+
     [Header("AI Turn")]
     [SerializeField] private float turnCooldown = 1f;
     [SerializeField] private float tempTimeout = 3f; //TODO: fix bug
-
-    private void Start()
-    {
-        tileMap = GameObject.FindGameObjectWithTag("TileMap").GetComponent<TileMap>();
-    }
 
     private void FixedUpdate()
     {
@@ -35,7 +32,7 @@ public class AI : MonoBehaviour
             }
             else if (cooldownTime <= 0f)
             {
-                if (!enemyUnits.Exists(unit => unit.unitController.actionPoints > 0))
+                if (!aiUnits.Exists(unit => unit.unitController.actionPoints > 0))
                 {
                     isActivated = false;
                     tileMap.ResetPlayerTurn();
@@ -61,7 +58,7 @@ public class AI : MonoBehaviour
     private void Activate()
     {
         playerUnits = new List<Unit>();
-        enemyUnits = new List<Unit>();
+        aiUnits = new List<Unit>();
         isActivated = true;
 
         foreach (Unit unit in tileMap.units)
@@ -72,7 +69,7 @@ public class AI : MonoBehaviour
             }
             else
             {
-                enemyUnits.Add(unit);
+                aiUnits.Add(unit);
             }
         }
 
@@ -81,7 +78,7 @@ public class AI : MonoBehaviour
 
     private void MakeTurn()
     {
-        foreach (Unit unit in enemyUnits)
+        foreach (Unit unit in aiUnits)
         {
             UnitController unitController = unit.unitController;
 
@@ -103,9 +100,9 @@ public class AI : MonoBehaviour
 
     private bool CanAttack(Unit unit)
     {
-        foreach (Tile neighbour in unit.tile.neighbours)
+        foreach (Unit target in playerUnits)
         {
-            if (neighbour.unit != null && neighbour.unit.isPlayerOwned)
+            if (unit.tile.DistanceTo(target.tile) <= unit.unitController.attackRange)
             {
                 return true;
             }
@@ -116,21 +113,14 @@ public class AI : MonoBehaviour
 
     private void AttackWeakest(Unit unit)
     {
-        List<Unit> targets = new List<Unit>();
+        Unit weakestTarget = playerUnits[0];
 
-        foreach (Tile neighbour in unit.tile.neighbours)
+        foreach (Unit target in playerUnits)
         {
-            if (neighbour.unit != null && neighbour.unit.isPlayerOwned)
-            {
-                targets.Add(neighbour.unit);
-            }
-        }
+            bool canAttack = unit.tile.DistanceTo(target.tile) <= unit.unitController.attackRange;
+            bool isWeaker = target.unitController.healthPoints < weakestTarget.unitController.healthPoints;
 
-        Unit weakestTarget = targets[0];
-
-        foreach (Unit target in targets)
-        {
-            if (target.unitController.healthPoints < weakestTarget.unitController.healthPoints)
+            if (canAttack && isWeaker)
             {
                 weakestTarget = target;
             }
