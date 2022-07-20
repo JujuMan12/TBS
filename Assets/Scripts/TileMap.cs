@@ -25,8 +25,6 @@ public class TileMap : MonoBehaviour
     [SerializeField] private GameObject[] unitPrefabs;
     [SerializeField] private bool[] unitsFaction;
     [SerializeField] private Transform unitFolder;
-    [SerializeField] private int playerUnitNumber = 10;
-    [SerializeField] private int enemyUnitNumber = 10;
     [SerializeField] private int unitSpawnZMax = 6;
 
     [Header("AI")]
@@ -54,6 +52,14 @@ public class TileMap : MonoBehaviour
         if (!units.Exists(unit => unit.isPlayerOwned) || !units.Exists(unit => !unit.isPlayerOwned)) //TODO: rework
         {
             Application.Quit();
+        }
+    }
+
+    static public void CreateUnitCount()
+    {
+        if (TileMap.unitCount == null)
+        {
+            TileMap.unitCount = new int[4];
         }
     }
 
@@ -121,6 +127,8 @@ public class TileMap : MonoBehaviour
 
     private void GenerateUnitsData()
     {
+        CreateUnitCount();
+
         units = new List<Unit>();
         for (int unitType = 0; unitType < unitCount.Length; unitType++)
         {

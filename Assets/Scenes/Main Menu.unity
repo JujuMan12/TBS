@@ -443,7 +443,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69077ca0227dde4d866cbc119987822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputField: {fileID: 255525549}
   unitType: 1
+  maxValue: 50
 --- !u!114 &255525549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -505,7 +507,19 @@ MonoBehaviour:
   m_CharacterLimit: 2
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 255525548}
+        m_TargetAssemblyTypeName: MenuUnitSelection, Assembly-CSharp
+        m_MethodName: UpdateUnitCount
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -644,7 +658,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69077ca0227dde4d866cbc119987822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputField: {fileID: 318663072}
   unitType: 3
+  maxValue: 25
 --- !u!114 &318663072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -706,7 +722,19 @@ MonoBehaviour:
   m_CharacterLimit: 2
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 318663071}
+        m_TargetAssemblyTypeName: MenuUnitSelection, Assembly-CSharp
+        m_MethodName: UpdateUnitCount
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -893,7 +921,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2898,7 +2926,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69077ca0227dde4d866cbc119987822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputField: {fileID: 1568761388}
   unitType: 0
+  maxValue: 50
 --- !u!114 &1568761388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2960,7 +2990,19 @@ MonoBehaviour:
   m_CharacterLimit: 2
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1568761387}
+        m_TargetAssemblyTypeName: MenuUnitSelection, Assembly-CSharp
+        m_MethodName: UpdateUnitCount
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -3370,7 +3412,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e69077ca0227dde4d866cbc119987822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inputField: {fileID: 1919065220}
   unitType: 2
+  maxValue: 25
 --- !u!114 &1919065220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3432,7 +3476,19 @@ MonoBehaviour:
   m_CharacterLimit: 2
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1919065219}
+        m_TargetAssemblyTypeName: MenuUnitSelection, Assembly-CSharp
+        m_MethodName: UpdateUnitCount
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
