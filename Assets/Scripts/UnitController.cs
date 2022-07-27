@@ -246,8 +246,11 @@ public class UnitController : MonoBehaviour
     {
         int defencePoints = inDefenceStance ? Random.Range(defenceBonusMin, defenceBonusMax) : 0;
 
-        healthPoints -= damage - armorPoints - defencePoints;
-        UpdateText();
+        if (armorPoints + defencePoints < damage)
+        {
+            healthPoints -= damage - armorPoints - defencePoints;
+            UpdateText();
+        }
 
         if (healthPoints <= 0)
         {
